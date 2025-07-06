@@ -18,14 +18,8 @@ It offers a clean, responsive interface with advanced playback features for both
 - 🔁 **Playback Controls**  
   Includes shuffle, loop-all, loop-once, and media key support.
 
-- ❤️ **Favorites & Playlists**  
-  Organize songs into favorites or custom playlists.
-
 - 🔎 **Live Search**  
   Quickly filter songs with instant search.
-
-- 🔄 **Miniplayer & Full Player Sync**  
-  Switch seamlessly between compact and full views.
 
 
 ## 🌐 Optional: Online Mode (YouTube)
