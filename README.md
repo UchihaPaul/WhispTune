@@ -65,3 +65,10 @@ This creates a standalone desktop application in the src-tauri/target/release/ d
 ✨ Vanilla JS, HTML, CSS — UI logic and layout
 
 💡 Anime.js — Animation
+
+## AI Assistance
+Qwen,
+ChatGPT,
+ Deepseek,
+ Github's Copilot,
+ Google Gemini 
