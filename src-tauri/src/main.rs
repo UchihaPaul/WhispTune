@@ -9,6 +9,7 @@ use lofty::{probe::Probe, prelude::Accessor, file::TaggedFileExt, tag::{Tag, Tag
 use std::process::Command;
 use serde::Serialize;
 use std::fs as stdfs;
+use rayon::prelude::*;
 
 #[derive(Debug, thiserror::Error, serde::Serialize, Clone)]
 #[serde(untagged)]
@@ -70,41 +71,40 @@ async fn select_and_list_audio_files(app_handle: AppHandle) -> Result<Vec<AudioF
         Err(e) => return Err(CommandError::Dialog(format!("Channel error: {}", e)).into()),
     };
 
-    let mut audio_files = Vec::new();
     let supported_extensions = ["mp3", "wav", "ogg", "flac", "m4a"];
+    let entries: Vec<_> = WalkDir::new(&folder_path)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|entry| entry.path().is_file())
+        .collect();
 
-    for entry in WalkDir::new(&folder_path).into_iter().filter_map(|e| e.ok()) {
+    let audio_files: Vec<AudioFile> = entries.par_iter().filter_map(|entry| {
         let path = entry.path();
-        if path.is_file() {
-            if let Some(extension) = path.extension() {
-                let ext_str = extension.to_string_lossy().to_lowercase();
-                if supported_extensions.contains(&ext_str.as_str()) {
-                    let file_name = path.file_name().and_then(|s| s.to_str()).unwrap_or("unknown_file").to_string();
-                    let mut display_name = file_name.clone();
-                    let mut artist = "Unknown Artist".to_string();
-
-                    match Probe::open(&path).and_then(|probe| probe.read()) {
-                        Ok(parsed_file) => {
-                            let tag = parsed_file.primary_tag().cloned()
-                                .or_else(|| parsed_file.first_tag().cloned())
-                                .unwrap_or_else(|| Tag::new(TagType::Id3v2));
-                            if let Some(title) = tag.title() { display_name = title.to_string(); }
-                            if let Some(art) = tag.artist() { artist = art.to_string(); }
-                        },
-                        Err(_) => {}
-                    }
-
-                    audio_files.push(AudioFile {
-                        path: path.to_string_lossy().into_owned(),
-                        file_name,
-                        display_name,
-                        artist,
-                        extension: ext_str,
-                    });
+        if let Some(extension) = path.extension() {
+            let ext_str = extension.to_string_lossy().to_lowercase();
+            if supported_extensions.contains(&ext_str.as_str()) {
+                let file_name = path.file_name().and_then(|s| s.to_str()).unwrap_or("unknown_file").to_string();
+                let mut display_name = file_name.clone();
+                let mut artist = "Unknown Artist".to_string();
+                if let Ok(parsed_file) = Probe::open(&path).and_then(|probe| probe.read()) {
+                    let tag = parsed_file.primary_tag().cloned()
+                        .or_else(|| parsed_file.first_tag().cloned())
+                        .unwrap_or_else(|| Tag::new(TagType::Id3v2));
+                    if let Some(title) = tag.title() { display_name = title.to_string(); }
+                    if let Some(art) = tag.artist() { artist = art.to_string(); }
                 }
+                return Some(AudioFile {
+                    path: path.to_string_lossy().into_owned(),
+                    file_name,
+                    display_name,
+                    artist,
+                    extension: ext_str,
+                });
             }
         }
-    }
+        None
+    }).collect();
+
     Ok(audio_files)
 }
 
