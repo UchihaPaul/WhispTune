@@ -1,9 +1,9 @@
 [package]
 name = "whisptune"
 version = "1.0.0"
-description = "A Tauri App"
+description = "A Tauri Music App"
 authors = ["UchihaPaul]
-edition = "2021"
+edition = "2025"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -28,3 +28,4 @@ tokio = { version = "1.45", features = ["full", "process"] }
 lofty = "0.22.4"
 tauri-plugin-updater = "2.7.1"
 thiserror = "2.0.12"
+rayon = "1.10"
