@@ -1,5 +1,3 @@
-// whisptune.js
-
 const { invoke } = window.__TAURI__.core;
 
 // --- DOM Element References ---
@@ -17,18 +15,16 @@ const background = document.getElementById('bg-img');
 const loopShuffleBtn = document.getElementById('loop-shuffle-btn'); // Combined loop button
 const shuffleBtn = document.getElementById('shuffle-btn'); // Separate shuffle button
  
-// Disable right-click context menu everywhere in the app
 window.addEventListener('contextmenu', function (e) {
   e.preventDefault();
 });
 
 window.addEventListener('contextmenu', e => e.preventDefault());
 
-// Prevent default behavior for dragover and drop events (to avoid opening files in the browser)
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => e.preventDefault());
 window.addEventListener('keydown', function(e) {
-  // Block F5, Ctrl+R, Ctrl+Shift+R, etc.
+ 
   if (
     e.key === 'F5' ||
     (e.ctrlKey && e.key.toLowerCase() === 'r') ||
@@ -36,7 +32,7 @@ window.addEventListener('keydown', function(e) {
   ) {
     e.preventDefault();
   }
-  // Block Back/Forward navigation
+
   if ((e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) {
     e.preventDefault();
   }
@@ -50,7 +46,6 @@ window.addEventListener('keydown', function(e) {
   }
 });
 
-// Set a random background and player image on app load
 (function setRandomDefaultImages() {
     const images = [
         'assets/bg1.jpeg',
@@ -65,26 +60,21 @@ window.addEventListener('keydown', function(e) {
     if (coverImg) coverImg.src = images[randomIndex];
 })();
 
-// --- Unified Playlist State ---
 let activePlaylist = [];
 let activeIndex = 0;
 let songs = [];
-// --- Player State Variables ---
-let currentHowl = null; // Store the current Howl instance
-let isLoopOnce = false; // Track loop once state (repeat current song)
-let isLoop = false; // Track loop all state (loop entire playlist)
-let isShuffle = false; // Track shuffle state
-let showFallbackImage = false; // Add toggle for album art/fallback image
-let nightThemeActive = false; // State for Konami Code night theme
 
-// --- Helper Functions ---
+let currentHowl = null;
+let isLoopOnce = false; 
+let isLoop = false;
+let isShuffle = false; 
+let showFallbackImage = false; 
+let nightThemeActive = false; 
 
-// Capitalize the first letter of each word in a string
 function capitalizeWords(str) {
     return str.replace(/\b\w/g, char => char.toUpperCase());
 }
 
-// Toggle play/pause state of the music
 function togglePlay() {
   if (!currentHowl) return;
 
@@ -97,7 +87,6 @@ function togglePlay() {
   }
 }
 
-// Play the current music
 function playMusic() {
     if (!currentHowl && songs.length > 0) {
        loadMusic(activePlaylist[activeIndex]);
@@ -109,7 +98,6 @@ function playMusic() {
     }
 }
 
-// Pause the current music
 function pauseMusic() {
     if (currentHowl) {
         currentHowl.pause();
@@ -117,7 +105,6 @@ function pauseMusic() {
      }
 }
 
-// Load a song into the Howler.js player and update UI
 function loadMusic(song = activePlaylist[activeIndex]) {
     if (currentHowl) {
         currentHowl.unload();
@@ -132,18 +119,15 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     artist.textContent = songArtist;
 
     if (isOnline) {
-        // Set cover and background to the online song's thumbnail
         if (song.thumbnail) {
             image.style.display = '';
             background.style.display = '';
             image.src = song.thumbnail;
             background.src = song.thumbnail;
         } else {
-            // Fallback if no thumbnail
             setRandomAssetImage();
         }
     } else {
-        // Local song logic (use album art or fallback)
         updateAlbumArt();
     }
 
@@ -174,21 +158,17 @@ function loadMusic(song = activePlaylist[activeIndex]) {
         },
         onend: () => {
             if (isLoopOnce) {
-                // Repeat the current song
                 loadMusic(activePlaylist[activeIndex]);
                 playMusic();
             } else if (activeIndex + 1 < activePlaylist.length) {
-                // Go to next song
                 activeIndex++;
                 loadMusic(activePlaylist[activeIndex]);
                 playMusic();
             } else if (isLoop) {
-                // Loop the entire playlist
                 activeIndex = 0;
                 loadMusic(activePlaylist[activeIndex]);
                 playMusic();
             } else {
-                // Stop playback at the end
                 pauseMusic();
                 playBtn.src = 'icons/play.svg';
             }
@@ -196,15 +176,13 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     });
 }
 
-// Set a random image from local assets as cover/background fallback
 function setRandomAssetImage() {
-    const randomImageNumber = Math.floor(Math.random() * 16) + 1; // Assuming 15 fallback images
-    const randomImage = `assets/image${randomImageNumber}.jpg`; // Path to your local assets folder
+    const randomImageNumber = Math.floor(Math.random() * 16) + 1; 
+    const randomImage = `assets/image${randomImageNumber}.jpg`; 
     image.src = randomImage;
     background.src = randomImage;
 }
 
-// Change the current music index and load/play the new song (unified)
 function changeMusic(direction) {
     if (activePlaylist.length === 0) {
         console.warn("No songs loaded to change music.");
@@ -220,7 +198,6 @@ function changeMusic(direction) {
     highlightCurrentSong();
 }
 
-// Update the visual progress bar based on current playback time
 function updateProgressBar() {
   if (!currentHowl) return;
 
@@ -243,32 +220,26 @@ function updateProgressBar() {
   currentTimeEl.textContent = formatTime(currentTime);
   durationEl.textContent = formatTime(duration);
 
-  // Only keep updating if the song is playing
   if (currentHowl.playing()) {
     requestAnimationFrame(updateProgressBar);
   }
 }
-
-// Set the current playback position based on click on the progress bar
 function setProgressBar(e) {
     if (!currentHowl) return;
 
-    const width = playerProgress.clientWidth; // Total width of the progress bar area
-    const clickX = e.offsetX; // X-coordinate of the click relative to the progress bar
-    const duration = currentHowl.duration(); // Total duration of the current song
-    currentHowl.seek((clickX / width) * duration); // Set playback position
+    const width = playerProgress.clientWidth; 
+    const clickX = e.offsetX; 
+    const duration = currentHowl.duration(); 
+    currentHowl.seek((clickX / width) * duration); 
 }
-
-// Helper function to finalize UI update after all songs and their metadata are loaded
 function finalizeSongLoad() {
-    // Sort songs alphabetically by displayName for consistent order
     songs.sort((a, b) => a.displayName.localeCompare(b.displayName));
     if (songs.length > 0) {
         activePlaylist = songs;
         activeIndex = 0;
         loadMusic(activePlaylist[activeIndex]);
         playMusic();
-        updateSongList(); // Populate the song list in the UI
+        updateSongList(); 
         highlightCurrentSong();
         console.log('Total songs loaded:', songs.length);
     } else {
@@ -276,7 +247,6 @@ function finalizeSongLoad() {
     }
 }
 
-// Update the displayed list of songs in the UI (unified for both local and online)
 function updateSongList() {
     const songListEl = document.getElementById('song-list');
     if (!songListEl) {
@@ -301,7 +271,6 @@ function updateSongList() {
     console.log('Song list updated:', songListEl.children.length, 'items');
 }
 
-// Highlight the currently playing song in the UI list (unified)
 function highlightCurrentSong() {
     const songListEl = document.getElementById('song-list');
     if (!songListEl) return;
@@ -310,7 +279,6 @@ function highlightCurrentSong() {
     });
 }
 
-// Toggle visibility of the song list sidebar/panel
 document.getElementById('menu-toggle').addEventListener('change', function () {
     const songListEl = document.getElementById('song-list');
     if (songListEl) {
@@ -324,7 +292,6 @@ document.getElementById('menu-toggle').addEventListener('change', function () {
     }
 });
 
-// Update the album art display (either actual cover, or random fallback)
 function updateAlbumArt() {
     const song = activePlaylist[activeIndex];
 
@@ -349,20 +316,19 @@ function updateAlbumArt() {
     }
 }
 
-// Toggle between loop modes (No Loop -> Loop All -> Loop Once)
 function toggleLoopMode() {
     if (!isLoopOnce && !isLoop) {
-        isLoop = true; // Enable Loop All
+        isLoop = true; 
         isLoopOnce = false;
-        updateLoopButton('repeat.svg', false); // No dimming
+        updateLoopButton('repeat.svg', false); 
     } else if (isLoop) {
         isLoop = false;
-        isLoopOnce = true; // Enable Loop Once
-        updateLoopButton('repeat-1.svg', false); // No dimming
+        isLoopOnce = true; 
+        updateLoopButton('repeat-1.svg', false);
     } else if (isLoopOnce) {
         isLoop = false;
-        isLoopOnce = false; // Disable Loop
-        updateLoopButton('repeat-disabled.svg', true); // Dimmed
+        isLoopOnce = false; 
+        updateLoopButton('repeat-disabled.svg', true); 
     }
     const loopBtn = document.getElementById('loop-shuffle-btn');
     const rect = loopBtn.getBoundingClientRect();
@@ -373,7 +339,6 @@ function toggleLoopMode() {
 
 }
 
-// Update loop button icon and active state
 function updateLoopButton(iconPath) {
     const icon = document.getElementById('loop-icon');
     if (icon) {
@@ -390,12 +355,11 @@ function updateShuffleButton(iconPath) {
     }
 }
 
-// Toggle Shuffle Mode
 function toggleShuffle() {
     isShuffle = !isShuffle;
     updateShuffleButton(
         isShuffle ? 'shuffle.svg' : 'shuffle-disabled.svg',
-        !isShuffle // Dimmed if shuffle is off
+        !isShuffle 
     );
     const shuffleBtnEl = document.getElementById('shuffle-btn');
     const rect = shuffleBtnEl.getBoundingClientRect();
@@ -406,13 +370,11 @@ function toggleShuffle() {
 
 }
 
-// Initialize shuffle button state on load
-updateShuffleButton('shuffle-disabled.svg', false); // Start dimmed/off
+updateShuffleButton('shuffle-disabled.svg', false); 
 
-// Add moon element for night theme (hidden by default)
 const moonDiv = document.createElement('div');
 moonDiv.className = 'moon';
-moonDiv.style.display = 'none'; // Hidden by default
+moonDiv.style.display = 'none'; 
 const playerImgElement = document.querySelector('.player-img');
 if (playerImgElement) {
     playerImgElement.prepend(moonDiv);
@@ -450,43 +412,34 @@ function loopShuffleBurst(centerX, centerY) {
   setTimeout(() => burstContainer.classList.add('hidden'), 1000);
 }
 
-
-// --- Tauri-Specific File Loading Logic ---
-
-// Function to load songs from a folder using Tauri backend commands
 async function loadSongsFromFolderTauri() {
     console.log("Attempting to load songs from folder via Tauri...");
     try {
-        // Call the Rust command to get file paths from the selected directory
-        // `filePaths` will be an array of objects: [{ path: "...", file_name: "...", extension: "..." }, ...]
+      
         const filePaths = await invoke('select_and_list_audio_files');
 
         if (!filePaths || filePaths.length === 0) {
             console.log("No files selected or found by Rust backend.");
             alert('No supported audio files found in the selected folder, or selection was cancelled.');
-            songs = []; // Ensure songs array is empty
-            updateSongList(); // Clear UI list
-            pauseMusic(); // Stop playback
+            songs = []; 
+            updateSongList(); 
+            pauseMusic(); 
             return;
         }
 
         console.log("Received file paths from Rust:", filePaths);
 
-        songs = []; // Reset the local songs array before populating
-    
-        // Use a Promise.all to wait for all files to be processed
-        // This ensures `finalizeSongLoad` is called only after all metadata/blobs are ready
+        songs = []; 
         await Promise.all(filePaths.map(async (filePathData) => {
             try {
-                // Use a Rust command to read the file content as bytes
+               
                 const fileContentBytes = await invoke('read_file_content', { path: filePathData.path });
 
-                // Convert bytes (Uint8Array) to a Blob object
+              
                 const blob = new Blob([new Uint8Array(fileContentBytes)], { type: `audio/${filePathData.extension}` });
-                // Create a Blob URL for Howler.js to play this audio
+            
                 const url = URL.createObjectURL(blob);
 
-                // Use jsmediatags to read metadata from the Blob
                 await new Promise((resolve) => {
                     window.jsmediatags.read(blob, {
                         onSuccess: function(tag) {
@@ -501,17 +454,17 @@ async function loadSongsFromFolderTauri() {
                             }
 
                             songs.push({
-                                path: url, // This is the Blob URL for Howler.js
+                                path: url, 
                                 displayName: displayName,
                                 artist: artistName,
                                 format: filePathData.extension,
                                 cover: coverUrl
                             });
-                            resolve(); // Resolve the promise once tags are read
+                            resolve(); 
                         },
                         onError: function(error) {
                             console.warn(`Failed to read tags for ${filePathData.file_name}:`, error);
-                            // Fallback if tags not found
+                       
                             songs.push({
                                 path: url,
                                 displayName: capitalizeWords(filePathData.file_name.replace(/\.[^/.]+$/, '')),
@@ -519,19 +472,18 @@ async function loadSongsFromFolderTauri() {
                                 format: filePathData.extension,
                                 cover: null
                             });
-                            resolve(); // Resolve even on error so Promise.all completes
+                            resolve(); 
                         }
                     });
                 });
 
             } catch (error) {
                 console.error(`Error processing file ${filePathData.path}:`, error);
-                // Even if one file fails, we want the overall process to continue
-                // so we still resolve the promise for this file.
+
             }
         }));
 
-        // After all files have been processed (Promise.all resolves)
+   
         finalizeSongLoad();
 
     } catch (error) {
@@ -540,18 +492,15 @@ async function loadSongsFromFolderTauri() {
     }
 }
 
-// Online playlist loader (unified)
 async function loadPlaylist(query) {
     try {
         const result = await invoke("search_playlist_and_stream", { songName: query });
 
         activePlaylist = result;
-        songs = result; // Update the local songs array for consistency
+        songs = result; 
         activeIndex = 0;
 
         updateSongList();
-
-        // Defensive: Only call loadMusic if there is at least one song
         if (activePlaylist.length > 0 && activePlaylist[activeIndex]) {
             loadMusic(activePlaylist[activeIndex]);
             playMusic();
@@ -564,28 +513,20 @@ async function loadPlaylist(query) {
     }
 }
 
-// --- Event Listeners ---
-
 playBtn.addEventListener('click', togglePlay);
 prevBtn.addEventListener('click', () => changeMusic(-1));
 nextBtn.addEventListener('click', () => changeMusic(1));
 playerProgress.addEventListener('click', setProgressBar);
-
-// Attach the new Tauri-compatible function to your "Add Music" button
-// Make sure this ID matches your HTML button ID for adding music (e.g., <button id="add-music-button">)
 document.getElementById('add-folder-btn').addEventListener('click', loadSongsFromFolderTauri);
 
 shuffleBtn.addEventListener('click', toggleShuffle);
-loopShuffleBtn.addEventListener('click', toggleLoopMode); // This button seems to handle all loop states
-
-// Show volume toast message
+loopShuffleBtn.addEventListener('click', toggleLoopMode); 
 function showVolumeToast(volume) {
     const toast = document.getElementById('volume-toast');
     const icon = toast.querySelector('img');
     const bar = document.getElementById('volume-bar');
 
     if (toast && icon && bar) {
-        // Update icon based on volume
         if (volume === 0) {
             icon.src = 'icons/mute.svg';
             icon.alt = 'Muted';
@@ -596,15 +537,11 @@ function showVolumeToast(volume) {
             icon.src = 'icons/volume.svg';
             icon.alt = 'High Volume';
         }
-        // Update bar width
         bar.style.width = `${Math.round(volume * 100)}%`;
 
         toast.style.display = 'flex';
-
-        // Cancel any previous anime.js animations
         if (toast._anime) toast._anime.pause();
 
-        // Animate in (pop up with bounce)
         toast._anime = anime({
             targets: toast,
             opacity: [0, 1],
@@ -619,7 +556,7 @@ function showVolumeToast(volume) {
             }
         });
 
-        // Hide after delay with fade/slide out
+        
         clearTimeout(toast._timeout);
         toast._timeout = setTimeout(() => {
             if (toast._anime) toast._anime.pause();
@@ -639,7 +576,6 @@ function showVolumeToast(volume) {
     }
 }
 
-// Keyboard controls
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
         e.preventDefault();
@@ -652,11 +588,11 @@ document.addEventListener('keydown', (e) => {
                 currentHowl.seek(0);
                 currentHowl.play();
             } else {
-                // Go to previous song
+                
                 changeMusic(-1);
             }
         } else {
-            // Go to previous song if not playing
+           
             changeMusic(-1);
         }
     } else if (e.code === 'ArrowRight') {
@@ -665,17 +601,17 @@ document.addEventListener('keydown', (e) => {
         if (currentHowl) {
             const newVol = Math.min(currentHowl.volume() + 0.1, 1);
             currentHowl.volume(newVol);
-            showVolumeToast(newVol); // Show toast message
+            showVolumeToast(newVol); 
         }
     } else if (e.code === 'ArrowDown') {
         if (currentHowl) {
             const newVol = Math.max(currentHowl.volume() - 0.1, 0);
             currentHowl.volume(newVol);
-            showVolumeToast(newVol); // Show toast message
+            showVolumeToast(newVol); 
         }
     } else if (e.key === 'f' || e.key === 'F') {
         showFallbackImage = !showFallbackImage;
-        updateAlbumArt(); // Toggle fallback image
+        updateAlbumArt(); 
     }
 });
 
@@ -685,13 +621,12 @@ function updateMediaSession(song) {
         navigator.mediaSession.metadata = new window.MediaMetadata({
             title: song.displayName || song.title,
             artist: song.artist,
-            album: '', // Optional
+            album: '', 
             artwork: artworkUrl ? [
                 { src: artworkUrl, sizes: '512x512', type: 'image/png' }
             ] : []
         });
 
-        // Optional: Handle media keys for play/pause/next/prev
         navigator.mediaSession.setActionHandler('play', playMusic);
         navigator.mediaSession.setActionHandler('pause', pauseMusic);
         navigator.mediaSession.setActionHandler('previoustrack', () => changeMusic(-1));
@@ -699,7 +634,7 @@ function updateMediaSession(song) {
     }
 }
 
-// Online mode Codes
+
 document.addEventListener('keydown', async (e) => {
   if (e.ctrlKey && e.key.toLowerCase() === 'o') {
     const x = e.clientX || window.innerWidth / 2;
@@ -798,15 +733,15 @@ if (e.key === konamiCode[konamiIndex]) {
 konamiIndex++;
 if (konamiIndex === konamiCode.length) {
 toggleNightTheme();
-konamiIndex = 0; // Reset index after successful activation
+konamiIndex = 0; 
 }
 } else {
-konamiIndex = 0; // Reset if the sequence is broken
+konamiIndex = 0; 
 }
 });
 
 function getRandomNightImage() {
-    const totalNightImages = 8; // Adjust to match the number of night images you have
+    const totalNightImages = 8; 
     const index = Math.floor(Math.random() * totalNightImages) + 1;
     return `assets/night${index}.jpg`;
 }
@@ -821,7 +756,6 @@ function toggleNightTheme() {
         image.style.display = 'none';
         background.style.display = 'none';
 
-        // 🌙 30% chance moon appears
         if (Math.random() < 0.1) {
             if (moon) {
                 const moonVariants = ['moon1.png', 'moon2.png', 'moon3.png'];
@@ -848,7 +782,7 @@ function toggleNightTheme() {
 // --- Magical Rain Mode ---
 
 let rainAudio = null;
-let originalBodyBackground = ''; // Variable to store the original background style
+let originalBodyBackground = ''; 
 
 document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.key.toLowerCase() === 'k') {
@@ -856,9 +790,9 @@ document.addEventListener('keydown', function(e) {
         const isRainActive = document.documentElement.classList.contains('rain-mode');
 
         if (isRainActive) {
-            // Store the original background before changing it
+            
             originalBodyBackground = document.body.style.background;
-            addRainVideoBackground(); // Call function to add video as background
+            addRainVideoBackground(); 
 
             if (!rainAudio) {
                 rainAudio = new Audio('effects/rain.mp3');
@@ -869,17 +803,16 @@ document.addEventListener('keydown', function(e) {
                 rainAudio.play();
             }
         } else {
-            removeRainVideoBackground(); // Call function to remove video background
-            // Restore the original background
+            removeRainVideoBackground(); 
             document.body.style.background = originalBodyBackground;
-            if (rainAudio) { // Check if rainAudio exists before pausing
+            if (rainAudio) { 
                 rainAudio.pause();
             }
         }
     }
 });
 
-// Insert rain video as background when rain-mode activates
+
 function addRainVideoBackground() {
     if (!document.getElementById('rain-video')) {
         const video = document.createElement('video');
@@ -887,23 +820,21 @@ function addRainVideoBackground() {
         video.src = 'videos/rain.mp4'; // From pexels.com User: Ambient_Nature_ Atmosphere
         video.autoplay = true;
         video.loop = true;
-        video.muted = true; // Mute the video background as audio is handled separately
+        video.muted = true; 
         video.style.position = 'fixed';
         video.style.top = '0';
         video.style.left = '0';
         video.style.width = '100%';
         video.style.height = '100%';
         video.style.objectFit = 'cover';
-        video.style.zIndex = '-1'; // Send it behind content
-        video.style.opacity = '1'; // Make it fully visible
+        video.style.zIndex = '-1'; 
+        video.style.opacity = '1'; 
         document.body.appendChild(video);
-
-        // Optionally, ensure body has no background or is transparent to show the video
         document.body.style.background = 'transparent';
     }
 }
 
-// Remove rain video background when mode deactivates
+
 function removeRainVideoBackground() {
     const video = document.getElementById('rain-video');
     if (video) video.remove();
@@ -919,7 +850,7 @@ function triggerLightning() {
 
 setInterval(() => {
     if (document.documentElement.classList.contains('rain-mode')) {
-        if (Math.random() < 0.2) // occasional lightning
+        if (Math.random() < 0.2) 
             triggerLightning();
     }
 }, 5000);
