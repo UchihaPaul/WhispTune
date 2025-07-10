@@ -12,19 +12,17 @@ const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 const playBtn = document.getElementById('play');
 const background = document.getElementById('bg-img');
-const loopShuffleBtn = document.getElementById('loop-shuffle-btn'); // Combined loop button
-const shuffleBtn = document.getElementById('shuffle-btn'); // Separate shuffle button
- 
+const loopShuffleBtn = document.getElementById('loop-shuffle-btn'); 
+const shuffleBtn = document.getElementById('shuffle-btn'); 
+
 window.addEventListener('contextmenu', function (e) {
   e.preventDefault();
 });
 
-window.addEventListener('contextmenu', e => e.preventDefault());
-
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => e.preventDefault());
 window.addEventListener('keydown', function(e) {
- 
+
   if (
     e.key === 'F5' ||
     (e.ctrlKey && e.key.toLowerCase() === 'r') ||
@@ -32,7 +30,6 @@ window.addEventListener('keydown', function(e) {
   ) {
     e.preventDefault();
   }
-
   if ((e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) {
     e.preventDefault();
   }
@@ -45,7 +42,6 @@ window.addEventListener('keydown', function(e) {
     e.preventDefault();
   }
 });
-
 (function setRandomDefaultImages() {
     const images = [
         'assets/bg1.jpeg',
@@ -60,17 +56,32 @@ window.addEventListener('keydown', function(e) {
     if (coverImg) coverImg.src = images[randomIndex];
 })();
 
+// --- Unified Playlist State ---
 let activePlaylist = [];
 let activeIndex = 0;
 let songs = [];
-
-let currentHowl = null;
+// --- Player State Variables ---
+let currentHowl = null; 
 let isLoopOnce = false; 
-let isLoop = false;
+let isLoop = false; 
 let isShuffle = false; 
 let showFallbackImage = false; 
-let nightThemeActive = false; 
+let nightThemeActive = false;
+let blobUrls = []; 
+let lightningInterval = null;
 
+// --- Helper Functions ---
+
+function cleanupBlobUrls() {
+    blobUrls.forEach(url => {
+        try {
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.warn('Failed to revoke blob URL:', error);
+        }
+    });
+    blobUrls = [];
+}
 function capitalizeWords(str) {
     return str.replace(/\b\w/g, char => char.toUpperCase());
 }
@@ -224,6 +235,7 @@ function updateProgressBar() {
     requestAnimationFrame(updateProgressBar);
   }
 }
+
 function setProgressBar(e) {
     if (!currentHowl) return;
 
@@ -232,6 +244,7 @@ function setProgressBar(e) {
     const duration = currentHowl.duration(); 
     currentHowl.seek((clickX / width) * duration); 
 }
+
 function finalizeSongLoad() {
     songs.sort((a, b) => a.displayName.localeCompare(b.displayName));
     if (songs.length > 0) {
@@ -301,7 +314,7 @@ function updateAlbumArt() {
         background.style.display = '';
         image.src = nightImg;
         background.src = nightImg;
-        return; // prevent override by album art
+        return; 
     }
 
     if (showFallbackImage || !song || !song.cover) {
@@ -324,11 +337,11 @@ function toggleLoopMode() {
     } else if (isLoop) {
         isLoop = false;
         isLoopOnce = true; 
-        updateLoopButton('repeat-1.svg', false);
+        updateLoopButton('repeat-1.svg', false); 
     } else if (isLoopOnce) {
         isLoop = false;
         isLoopOnce = false; 
-        updateLoopButton('repeat-disabled.svg', true); 
+        updateLoopButton('repeat-disabled.svg', true);
     }
     const loopBtn = document.getElementById('loop-shuffle-btn');
     const rect = loopBtn.getBoundingClientRect();
@@ -354,7 +367,6 @@ function updateShuffleButton(iconPath) {
         icon.classList.add('active');
     }
 }
-
 function toggleShuffle() {
     isShuffle = !isShuffle;
     updateShuffleButton(
@@ -369,9 +381,7 @@ function toggleShuffle() {
     loopShuffleBurst(x, y);
 
 }
-
 updateShuffleButton('shuffle-disabled.svg', false); 
-
 const moonDiv = document.createElement('div');
 moonDiv.className = 'moon';
 moonDiv.style.display = 'none'; 
@@ -412,10 +422,14 @@ function loopShuffleBurst(centerX, centerY) {
   setTimeout(() => burstContainer.classList.add('hidden'), 1000);
 }
 
+
+// --- Tauri-Specific File Loading Logic ---
+
 async function loadSongsFromFolderTauri() {
     console.log("Attempting to load songs from folder via Tauri...");
     try {
-      
+        cleanupBlobUrls();
+
         const filePaths = await invoke('select_and_list_audio_files');
 
         if (!filePaths || filePaths.length === 0) {
@@ -429,16 +443,13 @@ async function loadSongsFromFolderTauri() {
 
         console.log("Received file paths from Rust:", filePaths);
 
-        songs = []; 
+        songs = [];
         await Promise.all(filePaths.map(async (filePathData) => {
             try {
-               
                 const fileContentBytes = await invoke('read_file_content', { path: filePathData.path });
-
-              
                 const blob = new Blob([new Uint8Array(fileContentBytes)], { type: `audio/${filePathData.extension}` });
-            
                 const url = URL.createObjectURL(blob);
+                blobUrls.push(url); 
 
                 await new Promise((resolve) => {
                     window.jsmediatags.read(blob, {
@@ -451,10 +462,11 @@ async function loadSongsFromFolderTauri() {
                                 let byteArray = new Uint8Array(data);
                                 let coverBlob = new Blob([byteArray], { type: format });
                                 coverUrl = URL.createObjectURL(coverBlob);
+                                blobUrls.push(coverUrl); 
                             }
 
                             songs.push({
-                                path: url, 
+                                path: url,
                                 displayName: displayName,
                                 artist: artistName,
                                 format: filePathData.extension,
@@ -464,7 +476,6 @@ async function loadSongsFromFolderTauri() {
                         },
                         onError: function(error) {
                             console.warn(`Failed to read tags for ${filePathData.file_name}:`, error);
-                       
                             songs.push({
                                 path: url,
                                 displayName: capitalizeWords(filePathData.file_name.replace(/\.[^/.]+$/, '')),
@@ -472,7 +483,7 @@ async function loadSongsFromFolderTauri() {
                                 format: filePathData.extension,
                                 cover: null
                             });
-                            resolve(); 
+                            resolve();
                         }
                     });
                 });
@@ -483,7 +494,6 @@ async function loadSongsFromFolderTauri() {
             }
         }));
 
-   
         finalizeSongLoad();
 
     } catch (error) {
@@ -501,6 +511,7 @@ async function loadPlaylist(query) {
         activeIndex = 0;
 
         updateSongList();
+
         if (activePlaylist.length > 0 && activePlaylist[activeIndex]) {
             loadMusic(activePlaylist[activeIndex]);
             playMusic();
@@ -513,14 +524,18 @@ async function loadPlaylist(query) {
     }
 }
 
+// --- Event Listeners ---
+
 playBtn.addEventListener('click', togglePlay);
 prevBtn.addEventListener('click', () => changeMusic(-1));
 nextBtn.addEventListener('click', () => changeMusic(1));
 playerProgress.addEventListener('click', setProgressBar);
+
 document.getElementById('add-folder-btn').addEventListener('click', loadSongsFromFolderTauri);
 
 shuffleBtn.addEventListener('click', toggleShuffle);
 loopShuffleBtn.addEventListener('click', toggleLoopMode); 
+
 function showVolumeToast(volume) {
     const toast = document.getElementById('volume-toast');
     const icon = toast.querySelector('img');
@@ -537,9 +552,11 @@ function showVolumeToast(volume) {
             icon.src = 'icons/volume.svg';
             icon.alt = 'High Volume';
         }
+      
         bar.style.width = `${Math.round(volume * 100)}%`;
 
         toast.style.display = 'flex';
+
         if (toast._anime) toast._anime.pause();
 
         toast._anime = anime({
@@ -556,7 +573,6 @@ function showVolumeToast(volume) {
             }
         });
 
-        
         clearTimeout(toast._timeout);
         toast._timeout = setTimeout(() => {
             if (toast._anime) toast._anime.pause();
@@ -584,15 +600,12 @@ document.addEventListener('keydown', (e) => {
         if (currentHowl && currentHowl.playing()) {
             const currentTime = currentHowl.seek();
             if (currentTime > 2) {
-                // Restart the current song
                 currentHowl.seek(0);
                 currentHowl.play();
             } else {
-                
                 changeMusic(-1);
             }
         } else {
-           
             changeMusic(-1);
         }
     } else if (e.code === 'ArrowRight') {
@@ -621,7 +634,7 @@ function updateMediaSession(song) {
         navigator.mediaSession.metadata = new window.MediaMetadata({
             title: song.displayName || song.title,
             artist: song.artist,
-            album: '', 
+            album: '', // Optional
             artwork: artworkUrl ? [
                 { src: artworkUrl, sizes: '512x512', type: 'image/png' }
             ] : []
@@ -634,7 +647,7 @@ function updateMediaSession(song) {
     }
 }
 
-
+// Online mode Codes
 document.addEventListener('keydown', async (e) => {
   if (e.ctrlKey && e.key.toLowerCase() === 'o') {
     const x = e.clientX || window.innerWidth / 2;
@@ -770,6 +783,10 @@ function toggleNightTheme() {
         const audio = new Audio('effects/shine.mp3');
         audio.volume = 0.5;
         audio.play();
+        audio.addEventListener('ended', () => {
+            audio.src = '';
+            audio.load();
+        });
         alert('✨ Magical Night Theme Activated! ✨');
     } else {
         image.style.display = '';
@@ -790,7 +807,6 @@ document.addEventListener('keydown', function(e) {
         const isRainActive = document.documentElement.classList.contains('rain-mode');
 
         if (isRainActive) {
-            
             originalBodyBackground = document.body.style.background;
             addRainVideoBackground(); 
 
@@ -807,17 +823,19 @@ document.addEventListener('keydown', function(e) {
             document.body.style.background = originalBodyBackground;
             if (rainAudio) { 
                 rainAudio.pause();
+                rainAudio.src = '';
+                rainAudio.load();
+                rainAudio = null;
             }
         }
     }
 });
 
-
 function addRainVideoBackground() {
     if (!document.getElementById('rain-video')) {
         const video = document.createElement('video');
         video.id = 'rain-video';
-        video.src = 'videos/rain.mp4'; // From pexels.com User: Ambient_Nature_ Atmosphere
+        video.src = 'videos/rain.mp4'; 
         video.autoplay = true;
         video.loop = true;
         video.muted = true; 
@@ -830,10 +848,10 @@ function addRainVideoBackground() {
         video.style.zIndex = '-1'; 
         video.style.opacity = '1'; 
         document.body.appendChild(video);
+
         document.body.style.background = 'transparent';
     }
 }
-
 
 function removeRainVideoBackground() {
     const video = document.getElementById('rain-video');
@@ -848,9 +866,67 @@ function triggerLightning() {
     setTimeout(() => flash.remove(), 500);
 }
 
-setInterval(() => {
-    if (document.documentElement.classList.contains('rain-mode')) {
-        if (Math.random() < 0.2) 
-            triggerLightning();
+function initializeLightningInterval() {
+    if (lightningInterval) {
+        clearInterval(lightningInterval);
     }
-}, 5000);
+    lightningInterval = setInterval(() => {
+        if (document.documentElement.classList.contains('rain-mode')) {
+            if (Math.random() < 0.2) 
+                triggerLightning();
+        }
+    }, 5000);
+}
+
+initializeLightningInterval();
+
+// --- Comprehensive Cleanup Functions ---
+
+function performCompleteCleanup() {
+    console.log('Performing complete cleanup to prevent memory leaks...');
+    
+    cleanupBlobUrls();
+    
+    if (currentHowl) {
+        currentHowl.unload();
+        currentHowl = null;
+    }
+    
+
+    if (rainAudio) {
+        rainAudio.pause();
+        rainAudio.src = '';
+        rainAudio.load();
+        rainAudio = null;
+    }
+    
+  if (lightningInterval) {
+        clearInterval(lightningInterval);
+        lightningInterval = null;
+    }
+    
+    const toast = document.getElementById('volume-toast');
+    if (toast && toast._timeout) {
+        clearTimeout(toast._timeout);
+    }
+    
+    const rainVideo = document.getElementById('rain-video');
+    if (rainVideo) {
+        rainVideo.remove();
+    }
+    
+    console.log('Cleanup completed successfully');
+}
+
+window.addEventListener('beforeunload', performCompleteCleanup);
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        if (currentHowl && currentHowl.playing()) {
+            currentHowl.pause();
+        }
+        if (rainAudio && !rainAudio.paused) {
+            rainAudio.pause();
+        }
+    }
+});
