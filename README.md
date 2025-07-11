@@ -18,9 +18,6 @@ It offers a clean, responsive interface with advanced playback features for both
 - 🔁 **Playback Controls**  
   Includes shuffle, loop-all, loop-once, and media key support.
 
-- 🔎 **Live Search**  
-  Quickly filter songs with instant search.
-
 
 ## 🌐 Optional: Online Mode (YouTube)
 
