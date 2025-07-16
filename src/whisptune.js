@@ -12,9 +12,9 @@ const prevBtn = document.getElementById('prev');
 const nextBtn = document.getElementById('next');
 const playBtn = document.getElementById('play');
 const background = document.getElementById('bg-img');
-const loopShuffleBtn = document.getElementById('loop-shuffle-btn'); 
+const loopShuffleBtn = document.getElementById('loop-shuffle-btn');
 const shuffleBtn = document.getElementById('shuffle-btn'); 
-
+ 
 window.addEventListener('contextmenu', function (e) {
   e.preventDefault();
 });
@@ -22,7 +22,6 @@ window.addEventListener('contextmenu', function (e) {
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => e.preventDefault());
 window.addEventListener('keydown', function(e) {
-
   if (
     e.key === 'F5' ||
     (e.ctrlKey && e.key.toLowerCase() === 'r') ||
@@ -42,6 +41,7 @@ window.addEventListener('keydown', function(e) {
     e.preventDefault();
   }
 });
+
 (function setRandomDefaultImages() {
     const images = [
         'assets/bg1.jpeg',
@@ -65,13 +65,16 @@ let currentHowl = null;
 let isLoopOnce = false; 
 let isLoop = false; 
 let isShuffle = false; 
+let shuffledIndices = [];
+let shuffledPlaybackIndex = 0; 
 let showFallbackImage = false; 
-let nightThemeActive = false;
+let nightThemeActive = false; 
 let blobUrls = []; 
-let lightningInterval = null;
+let lightningInterval = null; 
 
 // --- Helper Functions ---
 
+// Cleanup function to revoke blob URLs and prevent memory leaks
 function cleanupBlobUrls() {
     blobUrls.forEach(url => {
         try {
@@ -82,10 +85,13 @@ function cleanupBlobUrls() {
     });
     blobUrls = [];
 }
+
+// Capitalize the first letter of each word in a string
 function capitalizeWords(str) {
     return str.replace(/\b\w/g, char => char.toUpperCase());
 }
 
+// Toggle play/pause state of the music
 function togglePlay() {
   if (!currentHowl) return;
 
@@ -98,6 +104,7 @@ function togglePlay() {
   }
 }
 
+// Play the current music
 function playMusic() {
     if (!currentHowl && songs.length > 0) {
        loadMusic(activePlaylist[activeIndex]);
@@ -109,6 +116,7 @@ function playMusic() {
     }
 }
 
+// Pause the current music
 function pauseMusic() {
     if (currentHowl) {
         currentHowl.pause();
@@ -116,6 +124,7 @@ function pauseMusic() {
      }
 }
 
+// Load a song into the Howler.js player and update UI
 function loadMusic(song = activePlaylist[activeIndex]) {
     if (currentHowl) {
         currentHowl.unload();
@@ -139,6 +148,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
             setRandomAssetImage();
         }
     } else {
+        // Local song logic (use album art or fallback)
         updateAlbumArt();
     }
 
@@ -171,14 +181,17 @@ function loadMusic(song = activePlaylist[activeIndex]) {
             if (isLoopOnce) {
                 loadMusic(activePlaylist[activeIndex]);
                 playMusic();
-            } else if (activeIndex + 1 < activePlaylist.length) {
-                activeIndex++;
-                loadMusic(activePlaylist[activeIndex]);
-                playMusic();
+                return;
+            }
+
+            const isLastSong = isShuffle 
+                ? shuffledPlaybackIndex >= shuffledIndices.length - 1
+                : activeIndex >= activePlaylist.length - 1;
+
+            if (!isLastSong) {
+                changeMusic(1);
             } else if (isLoop) {
-                activeIndex = 0;
-                loadMusic(activePlaylist[activeIndex]);
-                playMusic();
+                changeMusic(1); 
             } else {
                 pauseMusic();
                 playBtn.src = 'icons/play.svg';
@@ -187,6 +200,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     });
 }
 
+// Set a random image from local assets as cover/background fallback
 function setRandomAssetImage() {
     const randomImageNumber = Math.floor(Math.random() * 16) + 1; 
     const randomImage = `assets/image${randomImageNumber}.jpg`; 
@@ -194,21 +208,26 @@ function setRandomAssetImage() {
     background.src = randomImage;
 }
 
+// Change the current music index and load/play the new song (unified)
 function changeMusic(direction) {
     if (activePlaylist.length === 0) {
         console.warn("No songs loaded to change music.");
         return;
     }
-    if (isShuffle && direction !== 0) {
-        activeIndex = Math.floor(Math.random() * activePlaylist.length);
+
+    if (isShuffle) {
+        shuffledPlaybackIndex = (shuffledPlaybackIndex + direction + shuffledIndices.length) % shuffledIndices.length;
+        activeIndex = shuffledIndices[shuffledPlaybackIndex];
     } else {
         activeIndex = (activeIndex + direction + activePlaylist.length) % activePlaylist.length;
     }
+
     loadMusic(activePlaylist[activeIndex]);
     playMusic();
     highlightCurrentSong();
 }
 
+// Update the visual progress bar based on current playback time
 function updateProgressBar() {
   if (!currentHowl) return;
 
@@ -231,22 +250,36 @@ function updateProgressBar() {
   currentTimeEl.textContent = formatTime(currentTime);
   durationEl.textContent = formatTime(duration);
 
+  // Only keep updating if the song is playing
   if (currentHowl.playing()) {
     requestAnimationFrame(updateProgressBar);
   }
 }
 
+// Set the current playback position based on click on the progress bar
 function setProgressBar(e) {
     if (!currentHowl) return;
 
     const width = playerProgress.clientWidth; 
     const clickX = e.offsetX; 
     const duration = currentHowl.duration(); 
-    currentHowl.seek((clickX / width) * duration); 
+    currentHowl.seek((clickX / width) * duration);
 }
+
+// Helper to reset shuffle state, e.g., when a new playlist is loaded
+function resetShuffleState() {
+    if (isShuffle) {
+        isShuffle = false;
+        updateShuffleButton('shuffle-disabled.svg', true);
+        shuffledIndices = [];
+        shuffledPlaybackIndex = 0;
+    }
+}
+
 
 function finalizeSongLoad() {
     songs.sort((a, b) => a.displayName.localeCompare(b.displayName));
+    resetShuffleState(); 
     if (songs.length > 0) {
         activePlaylist = songs;
         activeIndex = 0;
@@ -260,6 +293,7 @@ function finalizeSongLoad() {
     }
 }
 
+// Update the displayed list of songs in the UI (unified for both local and online)
 function updateSongList() {
     const songListEl = document.getElementById('song-list');
     if (!songListEl) {
@@ -267,23 +301,89 @@ function updateSongList() {
         return;
     }
     songListEl.innerHTML = '';
+    let draggedIndex = null; 
+
     activePlaylist.forEach((song, index) => {
         const li = document.createElement('li');
         li.textContent = song.displayName || `${song.title} - ${song.artist}`;
         li.style.cursor = 'pointer';
         li.style.padding = '5px';
         li.classList.toggle('active', index === activeIndex);
+        li.draggable = true; 
+        li.dataset.index = index; 
+
         li.addEventListener('click', () => {
             activeIndex = index;
             loadMusic(activePlaylist[activeIndex]);
             playMusic();
             highlightCurrentSong();
         });
+
+        // Drag and Drop event listeners
+        li.addEventListener('dragstart', (e) => {
+            draggedIndex = parseInt(e.target.dataset.index);
+            setTimeout(() => {
+                e.target.classList.add('dragging');
+            }, 0);
+        });
+
+        li.addEventListener('dragend', (e) => {
+            e.target.classList.remove('dragging');
+            // Clean up visual cues on all elements
+            Array.from(songListEl.children).forEach(item => item.classList.remove('drag-over'));
+        });
+
+        li.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const target = e.target.closest('li');
+            if (target) {
+                Array.from(songListEl.children).forEach(item => item.classList.remove('drag-over'));
+                target.classList.add('drag-over');
+            }
+        });
+
+        li.addEventListener('dragleave', (e) => {
+            const target = e.target.closest('li');
+            if (target) {
+                target.classList.remove('drag-over');
+            }
+        });
+
+        li.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const target = e.target.closest('li');
+            if (!target) return;
+
+            const droppedIndex = parseInt(target.dataset.index);
+            target.classList.remove('drag-over');
+
+            if (draggedIndex === null || draggedIndex === droppedIndex) {
+                return;
+            }
+
+            if (isShuffle) {
+                toggleShuffle(); 
+            }
+
+            // Reorder the playlist
+            const currentSong = activePlaylist[activeIndex];
+            const draggedItem = activePlaylist.splice(draggedIndex, 1)[0];
+            activePlaylist.splice(droppedIndex, 0, draggedItem);
+
+            // Update the activeIndex to follow the currently playing song
+            activeIndex = activePlaylist.indexOf(currentSong);
+
+            updateSongList(); 
+            highlightCurrentSong();
+        });
+
         songListEl.appendChild(li);
     });
     console.log('Song list updated:', songListEl.children.length, 'items');
 }
 
+// Highlight the currently playing song in the UI list (unified)
 function highlightCurrentSong() {
     const songListEl = document.getElementById('song-list');
     if (!songListEl) return;
@@ -292,6 +392,7 @@ function highlightCurrentSong() {
     });
 }
 
+// Toggle visibility of the song list sidebar/panel
 document.getElementById('menu-toggle').addEventListener('change', function () {
     const songListEl = document.getElementById('song-list');
     if (songListEl) {
@@ -305,6 +406,7 @@ document.getElementById('menu-toggle').addEventListener('change', function () {
     }
 });
 
+// Update the album art display (either actual cover, or random fallback)
 function updateAlbumArt() {
     const song = activePlaylist[activeIndex];
 
@@ -329,11 +431,12 @@ function updateAlbumArt() {
     }
 }
 
+// Toggle between loop modes (No Loop -> Loop All -> Loop Once)
 function toggleLoopMode() {
     if (!isLoopOnce && !isLoop) {
         isLoop = true; 
         isLoopOnce = false;
-        updateLoopButton('repeat.svg', false); 
+        updateLoopButton('repeat.svg', false);
     } else if (isLoop) {
         isLoop = false;
         isLoopOnce = true; 
@@ -341,7 +444,7 @@ function toggleLoopMode() {
     } else if (isLoopOnce) {
         isLoop = false;
         isLoopOnce = false; 
-        updateLoopButton('repeat-disabled.svg', true);
+        updateLoopButton('repeat-disabled.svg', true); 
     }
     const loopBtn = document.getElementById('loop-shuffle-btn');
     const rect = loopBtn.getBoundingClientRect();
@@ -352,6 +455,7 @@ function toggleLoopMode() {
 
 }
 
+// Update loop button icon and active state
 function updateLoopButton(iconPath) {
     const icon = document.getElementById('loop-icon');
     if (icon) {
@@ -367,21 +471,42 @@ function updateShuffleButton(iconPath) {
         icon.classList.add('active');
     }
 }
+
+// Toggle Shuffle Mode
 function toggleShuffle() {
     isShuffle = !isShuffle;
     updateShuffleButton(
         isShuffle ? 'shuffle.svg' : 'shuffle-disabled.svg',
         !isShuffle 
     );
+
+    if (isShuffle && activePlaylist.length > 0) {
+        const currentSongIndex = activeIndex;
+        const indices = Array.from(activePlaylist.keys());
+        
+        indices.splice(indices.indexOf(currentSongIndex), 1);
+
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+
+        shuffledIndices = [currentSongIndex, ...indices];
+        shuffledPlaybackIndex = 0; 
+    } else {
+        shuffledIndices = [];
+    }
+
     const shuffleBtnEl = document.getElementById('shuffle-btn');
     const rect = shuffleBtnEl.getBoundingClientRect();
     const containerRect = document.querySelector('.container').getBoundingClientRect();
     const x = rect.left - containerRect.left + rect.width / 2;
     const y = rect.top - containerRect.top + rect.height / 2;
     loopShuffleBurst(x, y);
-
 }
+
 updateShuffleButton('shuffle-disabled.svg', false); 
+
 const moonDiv = document.createElement('div');
 moonDiv.className = 'moon';
 moonDiv.style.display = 'none'; 
@@ -429,13 +554,13 @@ async function loadSongsFromFolderTauri() {
     console.log("Attempting to load songs from folder via Tauri...");
     try {
         cleanupBlobUrls();
-
+        
         const filePaths = await invoke('select_and_list_audio_files');
 
         if (!filePaths || filePaths.length === 0) {
             console.log("No files selected or found by Rust backend.");
             alert('No supported audio files found in the selected folder, or selection was cancelled.');
-            songs = []; 
+            songs = [];
             updateSongList(); 
             pauseMusic(); 
             return;
@@ -443,10 +568,12 @@ async function loadSongsFromFolderTauri() {
 
         console.log("Received file paths from Rust:", filePaths);
 
-        songs = [];
+        songs = []; 
+    
         await Promise.all(filePaths.map(async (filePathData) => {
             try {
                 const fileContentBytes = await invoke('read_file_content', { path: filePathData.path });
+
                 const blob = new Blob([new Uint8Array(fileContentBytes)], { type: `audio/${filePathData.extension}` });
                 const url = URL.createObjectURL(blob);
                 blobUrls.push(url); 
@@ -466,7 +593,7 @@ async function loadSongsFromFolderTauri() {
                             }
 
                             songs.push({
-                                path: url,
+                                path: url, 
                                 displayName: displayName,
                                 artist: artistName,
                                 format: filePathData.extension,
@@ -483,14 +610,13 @@ async function loadSongsFromFolderTauri() {
                                 format: filePathData.extension,
                                 cover: null
                             });
-                            resolve();
+                            resolve(); 
                         }
                     });
                 });
 
             } catch (error) {
                 console.error(`Error processing file ${filePathData.path}:`, error);
-
             }
         }));
 
@@ -502,8 +628,10 @@ async function loadSongsFromFolderTauri() {
     }
 }
 
+// Online playlist loader (unified)
 async function loadPlaylist(query) {
     try {
+        resetShuffleState();
         const result = await invoke("search_playlist_and_stream", { songName: query });
 
         activePlaylist = result;
@@ -534,7 +662,7 @@ playerProgress.addEventListener('click', setProgressBar);
 document.getElementById('add-folder-btn').addEventListener('click', loadSongsFromFolderTauri);
 
 shuffleBtn.addEventListener('click', toggleShuffle);
-loopShuffleBtn.addEventListener('click', toggleLoopMode); 
+loopShuffleBtn.addEventListener('click', toggleLoopMode); /
 
 function showVolumeToast(volume) {
     const toast = document.getElementById('volume-toast');
@@ -552,7 +680,6 @@ function showVolumeToast(volume) {
             icon.src = 'icons/volume.svg';
             icon.alt = 'High Volume';
         }
-      
         bar.style.width = `${Math.round(volume * 100)}%`;
 
         toast.style.display = 'flex';
@@ -592,6 +719,7 @@ function showVolumeToast(volume) {
     }
 }
 
+// Keyboard controls
 document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') {
         e.preventDefault();
@@ -634,7 +762,7 @@ function updateMediaSession(song) {
         navigator.mediaSession.metadata = new window.MediaMetadata({
             title: song.displayName || song.title,
             artist: song.artist,
-            album: '', // Optional
+            album: '', 
             artwork: artworkUrl ? [
                 { src: artworkUrl, sizes: '512x512', type: 'image/png' }
             ] : []
@@ -746,7 +874,7 @@ if (e.key === konamiCode[konamiIndex]) {
 konamiIndex++;
 if (konamiIndex === konamiCode.length) {
 toggleNightTheme();
-konamiIndex = 0; 
+konamiIndex = 0;
 }
 } else {
 konamiIndex = 0; 
@@ -769,6 +897,7 @@ function toggleNightTheme() {
         image.style.display = 'none';
         background.style.display = 'none';
 
+        // 🌙 30% chance moon appears
         if (Math.random() < 0.1) {
             if (moon) {
                 const moonVariants = ['moon1.png', 'moon2.png', 'moon3.png'];
@@ -808,7 +937,7 @@ document.addEventListener('keydown', function(e) {
 
         if (isRainActive) {
             originalBodyBackground = document.body.style.background;
-            addRainVideoBackground(); 
+            addRainVideoBackground();
 
             if (!rainAudio) {
                 rainAudio = new Audio('effects/rain.mp3');
@@ -821,7 +950,7 @@ document.addEventListener('keydown', function(e) {
         } else {
             removeRainVideoBackground(); 
             document.body.style.background = originalBodyBackground;
-            if (rainAudio) { 
+            if (rainAudio) {
                 rainAudio.pause();
                 rainAudio.src = '';
                 rainAudio.load();
@@ -848,7 +977,6 @@ function addRainVideoBackground() {
         video.style.zIndex = '-1'; 
         video.style.opacity = '1'; 
         document.body.appendChild(video);
-
         document.body.style.background = 'transparent';
     }
 }
@@ -892,7 +1020,6 @@ function performCompleteCleanup() {
         currentHowl = null;
     }
     
-
     if (rainAudio) {
         rainAudio.pause();
         rainAudio.src = '';
@@ -900,7 +1027,8 @@ function performCompleteCleanup() {
         rainAudio = null;
     }
     
-  if (lightningInterval) {
+    // Clear lightning interval
+    if (lightningInterval) {
         clearInterval(lightningInterval);
         lightningInterval = null;
     }
