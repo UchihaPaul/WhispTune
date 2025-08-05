@@ -53,7 +53,7 @@ curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe -o 
 
 ### 🚀 Get Started
 ```bash
-git clone https://github.com/yourusername/WhispTune.git
+git clone https://github.com/UchihaPaul/WhispTune.git
 cd WhispTune
 npm install
 npm run tauri dev
