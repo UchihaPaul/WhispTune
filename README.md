@@ -41,7 +41,7 @@ Prerequisites
    `npm run tauri dev`
 ## 📦Building the App
 
-`npm run tauri build`
+  `npm run tauri build`
 ---
 This creates a standalone desktop application in the src-tauri/target/release/ directory.
 ## 📁 Tech Stack
