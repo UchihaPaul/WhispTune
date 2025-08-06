@@ -2,7 +2,7 @@
 
 > *Where melodies drift like the wind...*
 
-WhispTune is a **modern, offline-first desktop music player** crafted for music lovers who crave performance, beauty, and simplicity. Built with the **power of Rust** and a **sleek Vanilla JavaScript** interface, WhispTune transforms your music experience—whether it’s offline bliss or online discovery.
+WhispTune is a **modern, offline-first desktop music player** crafted for music lovers who crave performance, beauty, and simplicity. Built with the **power of Rust** and a **sleek Vanilla JavaScript** interface, WhispTune transforms your music experience whether it’s offline bliss or online discovery.
 
 ---
 
@@ -17,7 +17,6 @@ No more mystery tracks! WhispTune extracts:
 - Song titles
 - Artists
 - Album art  
-Your library has never looked this elegant.
 
 ### 🎚️ Intuitive Playback Controls
 Control your vibes with:
@@ -87,6 +86,6 @@ Huge shoutout to the AI copilots who helped bring WhispTune to life:
 
 ---
 
-> 🎶 WhispTune isn't just a player — it's your **safe space for sound**.
+> 🎶 WhispTune isn't just a player - it's your **safe space for sound**.
 
-> 🥚 *Psst... whispers carry secrets. Try a few key combos and clicks — you might unlock a little magic inside WhispTune.*
+> 🥚 *Psst... whispers carry secrets. Try a few key combos and clicks - you might unlock a little magic inside WhispTune.*
