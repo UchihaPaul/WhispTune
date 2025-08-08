@@ -88,4 +88,4 @@ Huge shoutout to the AI copilots who helped bring WhispTune to life:
 
 > 🎶 WhispTune isn't just a player - it's your **safe space for sound**.
 
-> 🥚 *Psst... WhisperTune carry secrets. Try a few key combos and clicks - you might unlock a little magic inside WhispTune.*
+> 🥚 *Psst... WhispTune carry secrets. Try a few key combos and clicks - you might unlock a little magic inside WhispTune.*
