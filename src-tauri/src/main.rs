@@ -8,6 +8,8 @@ use std::path::PathBuf;
 use lofty::{probe::Probe, prelude::Accessor, file::TaggedFileExt, tag::{Tag, TagType}};
 use std::process::Command;
 use serde::Serialize;
+use std::fs as stdfs;
+use rayon::prelude::*;
 
 #[derive(Debug, thiserror::Error, serde::Serialize, Clone)]
 #[serde(untagged)]
@@ -57,7 +59,7 @@ async fn select_and_list_audio_files(app_handle: AppHandle) -> Result<Vec<AudioF
     app_handle.dialog().file().pick_folder(move |folder_path_option: Option<FilePath>| {
         let path_buf_intermediate_result: std::result::Result<PathBuf, CommandError> = match folder_path_option {
             Some(file_path) => file_path.into_path().map_err(|e| CommandError::Dialog(format!("Failed: {}", e))),
-            None => Err(CommandError::Dialog("Folder selection cancelled".into())),
+            _ => Err(CommandError::Dialog("Folder selection cancelled".into())),
         };
         let final_result: Result<PathBuf> = path_buf_intermediate_result.map_err(|e| e.into());
         tx.send(final_result).expect("Failed to send folder path");
@@ -69,41 +71,40 @@ async fn select_and_list_audio_files(app_handle: AppHandle) -> Result<Vec<AudioF
         Err(e) => return Err(CommandError::Dialog(format!("Channel error: {}", e)).into()),
     };
 
-    let mut audio_files = Vec::new();
     let supported_extensions = ["mp3", "wav", "ogg", "flac", "m4a"];
+    let entries: Vec<_> = WalkDir::new(&folder_path)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|entry| entry.path().is_file())
+        .collect();
 
-    for entry in WalkDir::new(&folder_path).into_iter().filter_map(|e| e.ok()) {
+    let audio_files: Vec<AudioFile> = entries.par_iter().filter_map(|entry| {
         let path = entry.path();
-        if path.is_file() {
-            if let Some(extension) = path.extension() {
-                let ext_str = extension.to_string_lossy().to_lowercase();
-                if supported_extensions.contains(&ext_str.as_str()) {
-                    let file_name = path.file_name().and_then(|s| s.to_str()).unwrap_or("unknown_file").to_string();
-                    let mut display_name = file_name.clone();
-                    let mut artist = "Unknown Artist".to_string();
-
-                    match Probe::open(&path).and_then(|probe| probe.read()) {
-                        Ok(parsed_file) => {
-                            let tag = parsed_file.primary_tag().cloned()
-                                .or_else(|| parsed_file.first_tag().cloned())
-                                .unwrap_or_else(|| Tag::new(TagType::Id3v2));
-                            if let Some(title) = tag.title() { display_name = title.to_string(); }
-                            if let Some(art) = tag.artist() { artist = art.to_string(); }
-                        },
-                        Err(_) => {}
-                    }
-
-                    audio_files.push(AudioFile {
-                        path: path.to_string_lossy().into_owned(),
-                        file_name,
-                        display_name,
-                        artist,
-                        extension: ext_str,
-                    });
+        if let Some(extension) = path.extension() {
+            let ext_str = extension.to_string_lossy().to_lowercase();
+            if supported_extensions.contains(&ext_str.as_str()) {
+                let file_name = path.file_name().and_then(|s| s.to_str()).unwrap_or("unknown_file").to_string();
+                let mut display_name = file_name.clone();
+                let mut artist = "Unknown Artist".to_string();
+                if let Ok(parsed_file) = Probe::open(&path).and_then(|probe| probe.read()) {
+                    let tag = parsed_file.primary_tag().cloned()
+                        .or_else(|| parsed_file.first_tag().cloned())
+                        .unwrap_or_else(|| Tag::new(TagType::Id3v2));
+                    if let Some(title) = tag.title() { display_name = title.to_string(); }
+                    if let Some(art) = tag.artist() { artist = art.to_string(); }
                 }
+                return Some(AudioFile {
+                    path: path.to_string_lossy().into_owned(),
+                    file_name,
+                    display_name,
+                    artist,
+                    extension: ext_str,
+                });
             }
         }
-    }
+        None
+    }).collect();
+
     Ok(audio_files)
 }
 
@@ -113,18 +114,44 @@ async fn read_file_content(path: String) -> Result<Vec<u8>> {
 }
 #[tauri::command]
 async fn search_playlist_and_stream(song_name: String) -> Result<Vec<OnlineSong>> {
+    // Check if yt-dlp exists
+    if !stdfs::metadata("bin/yt-dlp").is_ok() && !stdfs::metadata("bin/yt-dlp.exe").is_ok() {
+        return Err(CommandError::Io("yt-dlp not found in bin folder. Please add yt-dlp to bin/yt-dlp or bin/yt-dlp.exe".to_string()).into());
+    }
+
+    let is_playlist = song_name.contains("youtube.com/playlist?list=") || song_name.contains("music.youtube.com/playlist?list=");
+    let is_video = song_name.contains("youtube.com/watch?v=") || song_name.contains("youtu.be/");
+
+    let args = if is_playlist {
+        vec![
+            "--dump-json".to_string(),
+            "-f".to_string(),
+            "bestaudio[ext=m4a]/bestaudio/best".to_string(),
+            song_name.clone(),
+        ]
+    } else if is_video {
+        vec![
+            "--dump-json".to_string(),
+            "-f".to_string(),
+            "bestaudio[ext=m4a]/bestaudio/best".to_string(),
+            song_name.clone(),
+        ]
+    } else {
+        vec![
+            format!("ytsearch1:{}", song_name),
+            "--dump-json".to_string(),
+            "-f".to_string(),
+            "bestaudio[ext=m4a]/bestaudio/best".to_string(),
+        ]
+    };
+
     let output = Command::new("bin/yt-dlp")
-        .arg(format!("ytsearch1:{}", song_name))
-        .arg("--dump-json")
-        .arg("-f")
-        .arg("bestaudio[ext=m4a]/bestaudio/best")
-        .arg(&song_name)
+        .args(&args)
         .output()
         .map_err(|e| tauri::Error::from(anyhow::anyhow!(e.to_string())))?;
 
     let raw = String::from_utf8_lossy(&output.stdout);
 
-    // yt-dlp outputs multiple JSON objects -> split by newlines
     let songs: Vec<OnlineSong> = raw
         .lines()
         .filter_map(|line| {
