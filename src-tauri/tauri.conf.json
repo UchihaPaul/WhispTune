@@ -1,12 +1,12 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "WhispTune",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "identifier": "com.whisptune.app",
   "build": {
     "frontendDist": "../src"
   },
-   "plugins": {
+  "plugins": {
     "updater": {
       "active": true,
       "endpoints": [],
@@ -23,13 +23,13 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; media-src * blob:; img-src 'self' blob: data: https://i.ytimg.com https://img.youtube.com;"
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; media-src * blob:; img-src 'self' blob: data: https://i.ytimg.com https://img.youtube.com; connect-src 'self' https:;"
     }
   },
   "bundle": {
     "active": true,
-    "targets": "msi",
-    "license": "./LICENSE",
+    "targets": "nsis",
+    "license": "../LICENSE.txt",
     "publisher": "UchihaPaul",
     "icon": [
       "icons/32x32.png",
@@ -42,14 +42,20 @@
       "allowDowngrades": false,
       "certificateThumbprint": null,
       "digestAlgorithm": null,
-      "nsis": null,
+      "nsis": {
+        "displayLanguageSelector": false,
+        "languages": ["English"],
+        "installerIcon": "icons/icon.ico",
+        "installMode": "perMachine",
+        "sidebarImage": "icons/installer-sidebar.bmp"
+      },
       "signCommand": null,
       "timestampUrl": null,
       "tsp": false,
+      "wix": null,
       "webviewInstallMode": {
         "type": "skip"
-      },
-      "wix":null
+      }
     }
   }
 }
