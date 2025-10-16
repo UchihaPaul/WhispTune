@@ -139,6 +139,287 @@ setTimeBasedVideo();
 // Update video every hour (3600000 ms = 1 hour)
 setInterval(setTimeBasedVideo, 3600000);
 
+// Beautiful birthday input dialog
+function showBirthdayInputDialog() {
+  return new Promise((resolve) => {
+    // Create backdrop
+    const backdrop = document.createElement("div");
+    backdrop.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(30,30,60,0.9) 100%);
+      z-index: 10000;
+      backdrop-filter: blur(10px);
+      animation: fadeIn 0.3s ease;
+    `;
+
+    // Create modal
+    const modal = document.createElement("div");
+    modal.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 50px 40px;
+      border-radius: 25px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      z-index: 10001;
+      text-align: center;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      border: 2px solid rgba(255,255,255,0.3);
+      max-width: 450px;
+      width: 90%;
+      animation: slideIn 0.4s ease;
+    `;
+
+    modal.innerHTML = `
+      <style>
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideIn {
+          from { 
+            opacity: 0;
+            transform: translate(-50%, -60%);
+          }
+          to { 
+            opacity: 1;
+            transform: translate(-50%, -50%);
+          }
+        }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+      </style>
+      <div style="
+        font-size: 60px;
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+      ">🎂</div>
+      <h2 style="
+        color: white;
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 15px 0;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      ">Welcome to WhispTune!</h2>
+      <p style="
+        color: rgba(255,255,255,0.95);
+        font-size: 16px;
+        margin: 0 0 30px 0;
+        line-height: 1.6;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      ">When's your birthday? 🎉<br>We'll add a little magic to your day!</p>
+      
+      <div style="
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-bottom: 30px;
+      ">
+        <div style="flex: 1;">
+          <label style="
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            text-align: left;
+          ">Month</label>
+          <select id="birth-month" style="
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          ">
+            <option value="">Select</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <div style="flex: 1;">
+          <label style="
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            text-align: left;
+          ">Day</label>
+          <select id="birth-day" style="
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          ">
+            <option value="">Select</option>
+            ${Array.from(
+              { length: 31 },
+              (_, i) => `<option value="${i + 1}">${i + 1}</option>`
+            ).join("")}
+          </select>
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 15px; justify-content: center;">
+        <button id="save-birthday-btn" style="
+          padding: 14px 32px;
+          background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+          color: white;
+          border: none;
+          border-radius: 50px;
+          cursor: pointer;
+          font-weight: 700;
+          font-size: 16px;
+          box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+          transition: all 0.3s ease;
+          flex: 1;
+        ">Save 🎁</button>
+        <button id="skip-birthday-btn" style="
+          padding: 14px 32px;
+          background: rgba(255,255,255,0.2);
+          color: white;
+          border: 2px solid rgba(255,255,255,0.5);
+          border-radius: 50px;
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 16px;
+          transition: all 0.3s ease;
+          flex: 1;
+        ">Skip</button>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+    document.body.appendChild(modal);
+
+    const monthSelect = document.getElementById("birth-month");
+    const daySelect = document.getElementById("birth-day");
+    const saveBtn = document.getElementById("save-birthday-btn");
+    const skipBtn = document.getElementById("skip-birthday-btn");
+
+    // Hover effects
+    saveBtn.onmouseover = () => {
+      saveBtn.style.transform = "translateY(-2px)";
+      saveBtn.style.boxShadow = "0 8px 25px rgba(76, 175, 80, 0.6)";
+    };
+    saveBtn.onmouseout = () => {
+      saveBtn.style.transform = "translateY(0)";
+      saveBtn.style.boxShadow = "0 6px 20px rgba(76, 175, 80, 0.4)";
+    };
+
+    skipBtn.onmouseover = () => {
+      skipBtn.style.background = "rgba(255,255,255,0.3)";
+      skipBtn.style.transform = "translateY(-2px)";
+    };
+    skipBtn.onmouseout = () => {
+      skipBtn.style.background = "rgba(255,255,255,0.2)";
+      skipBtn.style.transform = "translateY(0)";
+    };
+
+    // Select hover effects
+    monthSelect.onmouseover = () =>
+      (monthSelect.style.borderColor = "rgba(255,255,255,0.6)");
+    monthSelect.onmouseout = () =>
+      (monthSelect.style.borderColor = "rgba(255,255,255,0.3)");
+    daySelect.onmouseover = () =>
+      (daySelect.style.borderColor = "rgba(255,255,255,0.6)");
+    daySelect.onmouseout = () =>
+      (daySelect.style.borderColor = "rgba(255,255,255,0.3)");
+
+    // Save button handler
+    saveBtn.onclick = () => {
+      const month = monthSelect.value;
+      const day = daySelect.value;
+
+      if (!month || !day) {
+        // Shake animation for error
+        modal.style.animation = "none";
+        setTimeout(() => {
+          modal.style.animation = "shake 0.5s ease";
+          monthSelect.style.borderColor = "red";
+          daySelect.style.borderColor = "red";
+        }, 10);
+        return;
+      }
+
+      const birthday = `${month}-${day}`;
+      localStorage.setItem("userBirthday", birthday);
+      console.log("🎂 Birthday saved:", birthday);
+
+      // Success animation
+      modal.style.animation = "slideOut 0.3s ease forwards";
+      backdrop.style.animation = "fadeOut 0.3s ease forwards";
+
+      setTimeout(() => {
+        document.body.removeChild(backdrop);
+        document.body.removeChild(modal);
+        resolve(birthday);
+      }, 300);
+    };
+
+    // Skip button handler
+    skipBtn.onclick = () => {
+      modal.style.animation = "slideOut 0.3s ease forwards";
+      backdrop.style.animation = "fadeOut 0.3s ease forwards";
+
+      setTimeout(() => {
+        document.body.removeChild(backdrop);
+        document.body.removeChild(modal);
+        resolve(null);
+      }, 300);
+    };
+
+    // Add CSS animations
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translate(-50%, -50%); }
+        25% { transform: translate(-48%, -50%); }
+        75% { transform: translate(-52%, -50%); }
+      }
+      @keyframes slideOut {
+        to { 
+          opacity: 0;
+          transform: translate(-50%, -40%);
+        }
+      }
+      @keyframes fadeOut {
+        to { opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+  });
+}
+
 // Add this after your existing setTimeBasedVideo function
 function checkBirthdayAndSurprise() {
   // Get stored birthday from localStorage
@@ -147,14 +428,8 @@ function checkBirthdayAndSurprise() {
   const todayString = `${today.getMonth() + 1}-${today.getDate()}`; // Format: MM-DD
 
   if (!storedBirthday) {
-    // First time - ask for birthday
-    const birthday = prompt(
-      "🎂 When is your birthday? (MM-DD format, e.g., 03-15)"
-    );
-    if (birthday && birthday.match(/^\d{1,2}-\d{1,2}$/)) {
-      localStorage.setItem("userBirthday", birthday);
-      console.log("Birthday saved:", birthday);
-    }
+    // First time - ask for birthday with custom dialog
+    showBirthdayInputDialog();
     return;
   }
 
@@ -174,6 +449,7 @@ function triggerBirthdaySurprise() {
     "assets/birthday1.jpg",
     "assets/birthday2.jpg",
     "assets/birthday3.jpg",
+    "assets/birthday4.jpg",
     "assets/party.jpg",
   ];
   const randomBirthdayImg =
@@ -187,15 +463,13 @@ function triggerBirthdaySurprise() {
   // 2. Special Birthday Video for Add Music Button
   const videoElement = document.querySelector(".button-video source");
   if (videoElement) {
-    videoElement.src = "videos/Adobe_birthday.mp4"; // Special birthday video
+    videoElement.src = "videos/birthday.mp4"; // Special birthday video
     const video = videoElement.parentElement;
     video.load();
   }
 
   // 3. Birthday Confetti Explosion
   createBirthdayConfetti();
-
-  // 4. Birthday Audio Surprise
 
   // 5. Special Birthday Toast Message
   showBirthdayToast();
@@ -206,10 +480,23 @@ function triggerBirthdaySurprise() {
   // 6. Automatic Birthday Playlist Search (if online)
   function showCustomConfirm(message) {
     return new Promise((resolve) => {
+      // Create backdrop overlay
+      const backdrop = document.createElement("div");
+      backdrop.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        `;
+
       const modal = document.createElement("div");
       modal.style.cssText = `
             position: fixed;
-            top: 68%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -219,8 +506,9 @@ function triggerBirthdaySurprise() {
             z-index: 10001;
             text-align: center;
             font-family: 'Segoe UI', Arial, sans-serif;
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
+            max-width: 90%;
+            max-height: 90%;
         `;
 
       modal.innerHTML = `
@@ -263,41 +551,51 @@ function triggerBirthdaySurprise() {
             </div>
         `;
 
+      document.body.appendChild(backdrop);
       document.body.appendChild(modal);
 
       // Add hover effects
       const yesButton = document.getElementById("confirm-yes");
       const noButton = document.getElementById("confirm-no");
 
-      yesButton.onmouseover = () => {
-        yesButton.style.transform = "translateY(-2px)";
-        yesButton.style.boxShadow = "0 6px 20px rgba(76, 175, 80, 0.6)";
-      };
+      if (yesButton && noButton) {
+        yesButton.onmouseover = () => {
+          yesButton.style.transform = "translateY(-2px)";
+          yesButton.style.boxShadow = "0 6px 20px rgba(76, 175, 80, 0.6)";
+        };
 
-      yesButton.onmouseout = () => {
-        yesButton.style.transform = "translateY(0)";
-        yesButton.style.boxShadow = "0 4px 15px rgba(76, 175, 80, 0.4)";
-      };
+        yesButton.onmouseout = () => {
+          yesButton.style.transform = "translateY(0)";
+          yesButton.style.boxShadow = "0 4px 15px rgba(76, 175, 80, 0.4)";
+        };
 
-      noButton.onmouseover = () => {
-        noButton.style.transform = "translateY(-2px)";
-        noButton.style.boxShadow = "0 6px 20px rgba(244, 67, 54, 0.6)";
-      };
+        noButton.onmouseover = () => {
+          noButton.style.transform = "translateY(-2px)";
+          noButton.style.boxShadow = "0 6px 20px rgba(244, 67, 54, 0.6)";
+        };
 
-      noButton.onmouseout = () => {
-        noButton.style.transform = "translateY(0)";
-        noButton.style.boxShadow = "0 4px 15px rgba(244, 67, 54, 0.4)";
-      };
+        noButton.onmouseout = () => {
+          noButton.style.transform = "translateY(0)";
+          noButton.style.boxShadow = "0 4px 15px rgba(244, 67, 54, 0.4)";
+        };
 
-      yesButton.onclick = () => {
-        document.body.removeChild(modal);
-        resolve(true);
-      };
+        yesButton.onclick = () => {
+          document.body.removeChild(backdrop);
+          document.body.removeChild(modal);
+          resolve(true);
+        };
 
-      noButton.onclick = () => {
+        noButton.onclick = () => {
+          document.body.removeChild(backdrop);
+          document.body.removeChild(modal);
+          resolve(false);
+        };
+      } else {
+        console.error("Confirm buttons not found!");
+        document.body.removeChild(backdrop);
         document.body.removeChild(modal);
         resolve(false);
-      };
+      }
     });
   }
 
@@ -526,14 +824,6 @@ function scheduleBirthdayCheck() {
 
 scheduleBirthdayCheck();
 
-// Easter egg: Let users manually trigger birthday mode (for testing or fun)
-document.addEventListener("keydown", function (e) {
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "b") {
-    console.log("Manual birthday mode triggered!");
-    triggerBirthdaySurprise();
-  }
-});
-
 // --- Unified Playlist State ---
 let activePlaylist = [];
 let activeIndex = 0;
@@ -685,7 +975,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
 
 // Set a random image from local assets as cover/background fallback
 function setRandomAssetImage() {
-  const randomImageNumber = Math.floor(Math.random() * 16) + 1; // Assuming 15 fallback images
+  const randomImageNumber = Math.floor(Math.random() * 18) + 1; // Assuming 15 fallback images
   const randomImage = `assets/image${randomImageNumber}.jpg`; // Path to your local assets folder
   image.src = randomImage;
   background.src = randomImage;
@@ -994,8 +1284,6 @@ function toggleShuffle() {
 
 // Initialize shuffle button state on load
 updateShuffleButton("shuffle-disabled.svg", false); // Start dimmed/off
-
-// removed moon element (night theme)
 
 function loopShuffleBurst(centerX, centerY) {
   const glyphs = [
