@@ -82,7 +82,7 @@ npm run tauri build
 ## 💡 Acknowledgements
 
 Huge shoutout to the AI copilots who helped bring WhispTune to life:
-**Qwen, ChatGPT, DeepSeek, GitHub Copilot, Google Gemini**
+**Qwen, ChatGPT, DeepSeek, GitHub Copilot, Google Gemini, Claude**
 
 ---
 
