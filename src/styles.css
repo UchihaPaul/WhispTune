@@ -1,4 +1,3 @@
-/* WhispTune.css */
 @font-face {
   font-family: "Poppins";
   src: url("fonts/Poppins-Black.woff2") format("woff2"),
@@ -22,14 +21,14 @@ body {
 }
 /* Scrollbar theming variables */
 :root {
-  --sb-size: 10px; /* scrollbar thickness */
-  --sb-track: transparent; /* track background */
-  --sb-thumb-start: #8f94fb; /* gradient start */
-  --sb-thumb-end: #4e54c8; /* gradient end */
-  --sb-thumb-hover-start: #a7abff; /* hover start */
-  --sb-thumb-hover-end: #5b61e6; /* hover end */
-  --sb-thumb-active-start: #6e74ff; /* active start */
-  --sb-thumb-active-end: #3b3fc0; /* active end */
+  --sb-size: 10px;
+  --sb-track: transparent;
+  --sb-thumb-start: #8f94fb;
+  --sb-thumb-end: #4e54c8;
+  --sb-thumb-hover-start: #a7abff;
+  --sb-thumb-hover-end: #5b61e6;
+  --sb-thumb-active-start: #6e74ff; 
+  --sb-thumb-active-end: #3b3fc0; 
   --sb-thumb-shadow: 0 2px 8px rgba(78, 84, 200, 0.35);
   --sb-thumb-shadow-hover: 0 3px 12px rgba(78, 84, 200, 0.5);
 }
@@ -37,7 +36,6 @@ body,
 * {
   user-select: none;
 }
-/* General Reset */
 html {
   box-sizing: border-box;
 }
@@ -52,7 +50,6 @@ body {
   background-color: #f5f5f5;
   background: transparent;
 }
-/* Blurred Background */
 .background {
   position: fixed;
   width: 200%;
@@ -70,19 +67,17 @@ body {
   right: 0;
   min-width: 50%;
   min-height: 50%;
-  -webkit-filter: blur(15px); /* For Safari */
   filter: blur(15px);
   transform: scale(1.1);
   opacity: 1;
 }
-/* Music Player Container */
 .container {
   background: rgba(
     255,
     255,
     255,
     0.05
-  ); /* More transparent for a subtle effect */
+  ); 
   backdrop-filter: blur(30px) saturate(200%) brightness(1.1);
   -webkit-backdrop-filter: blur(30px) saturate(200%) brightness(1.1);
 
@@ -90,8 +85,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3),
-    /* Soft depth */ inset 0 0 0.5px rgba(255, 255, 255, 0.2),
-    /* Delicate inner glow */ inset 0 -1px 2px rgba(0, 0, 0, 0.15); /* Soft shadow at the bottom */
+  inset 0 0 0.5px rgba(255, 255, 255, 0.2),
+  inset 0 -1px 2px rgba(0, 0, 0, 0.15); 
 
   transition: all 0.25s ease;
   min-height: 350px;
@@ -109,7 +104,6 @@ body {
     inset 0 -1px 2.5px rgba(0, 0, 0, 0.2);
 }
 
-/* Album Cover */
 .player-img {
   width: 300px;
   height: 300px;
@@ -141,7 +135,6 @@ body {
   transition: all 0.5s;
   opacity: 1;
 }
-/* Fade Out Animation */
 @keyframes fadeOut {
   from {
     opacity: 1;
@@ -150,7 +143,6 @@ body {
     opacity: 0;
   }
 }
-/* Fade In Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -159,28 +151,26 @@ body {
     opacity: 1;
   }
 }
-/* Apply animations to the album cover */
 .player-img img {
-  transition: opacity 0.5s ease; /* Smooth transition for opacity changes */
-  animation: none; /* Default state: no animation */
+  transition: opacity 0.5s ease; 
+  animation: none;
 }
 .player-img img.fade-out {
-  animation: fadeOut 0.5s forwards; /* Apply fade-out animation */
+  animation: fadeOut 0.5s forwards;
 }
 .player-img img.fade-in {
-  animation: fadeIn 0.5s forwards; /* Apply fade-in animation */
+  animation: fadeIn 0.5s forwards;
 }
-/* Song Title and Artist */
 h2 {
   font-size: 20px;
   text-align: center;
   font-weight: 700;
   margin: 10px 0 0;
-  max-width: 90%; /* Add width constraint */
+  max-width: 90%;
   margin: 0 auto;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Fallback */
+  text-overflow: ellipsis;
 }
 h3 {
   font-size: 20px;
@@ -188,7 +178,7 @@ h3 {
   font-weight: 500;
   margin: 10px 0 0;
 }
-/* Progress Bar */
+
 .player-progress {
   background-color: #fff;
   border-radius: 5px;
@@ -210,7 +200,7 @@ h3 {
   display: flex;
   justify-content: space-between;
 }
-/* Player Controls */
+
 .player-controls {
   width: 380px;
   position: relative;
@@ -233,7 +223,7 @@ h3 {
   filter: brightness(40%);
   transform: scale(1.2);
 }
-/* Add Folder Button - with video animation */
+
 .video-button {
   position: relative;
   display: flex;
@@ -241,7 +231,7 @@ h3 {
   justify-content: center;
   width: 300px;
   height: 60px;
-  border-radius: 30px; /* Curved edges */
+  border-radius: 30px;
   overflow: hidden;
   border: 2px solid #333;
   background: transparent;
@@ -287,7 +277,6 @@ h3 {
   z-index: 1;
   pointer-events: none;
 }
-/* Toggle Switch for Song List */
 #menu-toggle {
   display: none;
 }
@@ -339,7 +328,6 @@ h3 {
   transition-duration: 0.5s;
   transform: rotate(180deg);
 }
-/* Song List */
 #song-list {
   max-height: 0;
   opacity: 0;
@@ -348,14 +336,14 @@ h3 {
   list-style: none;
   padding: 0;
   margin: 10px 0;
-  scrollbar-width: none; /* Hide Firefox scrollbar */
+  scrollbar-width: none;
 }
 
 #song-list.show {
-  max-height: 300px; /* Adjust as needed */
+  max-height: 300px;
   opacity: 1;
-  overflow-y: auto; /* Enable scrolling */
-  scrollbar-width: thin; /* Show Firefox scrollbar */
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 #song-list.show::-webkit-scrollbar {
   width: 8px;
@@ -371,20 +359,18 @@ h3 {
   background: rgba(255, 255, 255, 0.5);
 }
 #song-list.show {
-  max-height: 300px; /* Adjust as needed */
+  max-height: 300px;
   opacity: 1;
-  overflow-y: auto; /* Enable scrolling if content exceeds max-height */
+  overflow-y: auto; 
 }
-
-/* Hide scrollbar when list is hidden */
 #song-list:not(.show) {
   overflow-y: hidden;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
 }
 #song-list:not(.show)::-webkit-scrollbar {
   display: none;
 }
-/* Song List Items */
+
 #song-list li,
 #songs-list li {
   backdrop-filter: blur(10px);
@@ -399,9 +385,8 @@ h3 {
   font-size: 14px;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Changed from space-between to flex-start */
+  justify-content: flex-start;
 }
-/* Stabilized song list icons (consistent footprint, no layout shift) */
 #song-list li,
 #songs-list li {
   gap: 12px;
@@ -410,15 +395,15 @@ h3 {
 #song-list li::before,
 #songs-list li::before {
   content: "";
-  flex: 0 0 20px; /* reserve fixed space */
-  width: 20px; /* same size for all states */
+  flex: 0 0 20px;
+  width: 20px; 
   height: 20px;
   display: inline-block;
   background: url("icons/music-notes.svg") no-repeat center center / 72% 72%;
   opacity: 0.65;
   transition: filter 0.35s ease, transform 0.35s ease, opacity 0.35s ease;
   will-change: transform, opacity;
-  pointer-events: none; /* icon purely decorative */
+  pointer-events: none;
 }
 
 #song-list li:hover::before,
@@ -444,27 +429,19 @@ h3 {
     transform: scale(1.2);
   }
 }
-/* Transparent Scrollbar for WebKit Browsers (Chrome, Edge, Safari) */
 #song-list::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
+  width: 8px; 
 }
 #song-list::-webkit-scrollbar-track {
-  background: transparent; /* Transparent track */
+  background: transparent;
 }
 #song-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3); /* Semi-transparent thumb */
-  border-radius: 4px; /* Rounded corners for the thumb */
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
 }
 #song-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5); /* Slightly more visible on hover */
+  background: rgba(255, 255, 255, 0.5); 
 }
-/* Fallback for Firefox */
-#song-list {
-  scrollbar-width: thin; /* Thin scrollbar */
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent; /* Thumb and track colors */
-}
-
-/* Add to your existing CSS */
 .marquee-title {
   white-space: nowrap;
   overflow: hidden;
@@ -494,16 +471,13 @@ h3 {
     transform: translateX(-100%);
   }
 }
-/* Smooth start/end */
 .marquee-title span::after {
   content: " ";
   padding-right: 100%;
 }
-/* Pause on hover */
 .marquee-title:hover span {
   animation-play-state: paused;
 }
-/* Style for the loop button */
 #loop-shuffle-btn {
   background: none;
   border: none;
@@ -515,7 +489,6 @@ h3 {
   top: -2px;
   left: -45px;
 }
-/* Style for the SVG icon */
 #loop-shuffle-btn img {
   width: 100%;
   height: 100%;
@@ -523,12 +496,11 @@ h3 {
   transition: all 0.3s ease;
 }
 
-/* Active state for Loop Once/All */
 #loop-shuffle-btn img.active {
   opacity: 1;
   filter: none;
 }
-/* Shuffle Button */
+
 #shuffle-btn {
   background: none;
   border: none;
@@ -546,12 +518,10 @@ h3 {
   object-fit: contain;
   transition: all 0.3s ease;
 }
-/* Active state (Shuffle On) */
 #shuffle-btn img.active {
   opacity: 1;
   filter: none;
 }
-/* Remove focus outline/border for buttons and images inside buttons */
 #shuffle-btn,
 #shuffle-btn:focus,
 #loop-shuffle-btn,
@@ -564,7 +534,6 @@ h3 {
   box-shadow: none !important;
   border: none;
 }
-/* Remove focus outline for video inside Add Music button */
 .video-button video:focus {
   outline: none !important;
   box-shadow: none !important;
@@ -630,8 +599,6 @@ h3 {
 .hidden {
   display: none;
 }
-
-/* Magical Rain Mode */
 .rain-mode::before {
   content: "";
   position: fixed;
@@ -674,10 +641,9 @@ h3 {
   transition: all 0.5s ease;
 }
 
-/* Volume Toast Popup */
 .toast {
   position: fixed;
-  left: 18%; /*decrease*/
+  left: 18%;
   bottom: -20px;
   transform: translate(-50%, 60px) scale(0.98);
   min-width: 180px;
@@ -724,8 +690,6 @@ h3 {
   box-shadow: 0 0 8px #8f94fb88;
 }
 
-/* Transparent Scrollbar for WebKit Browsers (Chrome, Edge, Safari) */
-/* Scrollbar for main window */
 html::-webkit-scrollbar {
   width: 8px;
 }
@@ -739,13 +703,7 @@ html::-webkit-scrollbar-thumb {
 html::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
 }
-/* Fallback for Firefox */
-html {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-}
 
-/* Global Loader - Enhanced Vinyl + Equalizer Hybrid */
 .loader {
   position: fixed;
   inset: 0;
@@ -771,7 +729,6 @@ html {
   pointer-events: none;
 }
 
-/* Vinyl disc core */
 .loader-vinyl {
   position: relative;
   width: 140px;
@@ -841,8 +798,6 @@ html {
   background: #05060a;
   box-shadow: 0 0 0 1px #272a40, 0 0 4px #000 inset;
 }
-
-/* Orbiting notes */
 .loader-notes {
   position: absolute;
   inset: 0;
@@ -876,8 +831,6 @@ html {
     transform: rotate(360deg);
   }
 }
-
-/* Equalizer arcs */
 .loader-arcs {
   position: absolute;
   inset: -14%;
@@ -912,7 +865,6 @@ html {
   }
 }
 
-/* Loader text */
 .loader #loader-text {
   font-family: "Ubuntu", sans-serif;
   letter-spacing: 0.6px;
@@ -945,7 +897,6 @@ html {
   }
 }
 
-/* ===================== Query Modal (video background) ===================== */
 .query-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1089,3 +1040,4 @@ html {
   background: rgba(20, 22, 40, 0.85);
   border-color: rgba(78, 84, 200, 0.4);
 }
+
