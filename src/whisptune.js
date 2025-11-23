@@ -44,9 +44,8 @@ const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 const playBtn = document.getElementById("play");
 const background = document.getElementById("bg-img");
-const loopShuffleBtn = document.getElementById("loop-shuffle-btn"); 
-const shuffleBtn = document.getElementById("shuffle-btn"); 
-
+const loopShuffleBtn = document.getElementById("loop-shuffle-btn");
+const shuffleBtn = document.getElementById("shuffle-btn");
 const loaderEl = document.getElementById("global-loader");
 const loaderTextEl = document.getElementById("loader-text");
 let loaderRefCount = 0;
@@ -67,7 +66,6 @@ window.addEventListener("contextmenu", function (e) {
 window.addEventListener("dragover", (e) => e.preventDefault());
 window.addEventListener("drop", (e) => e.preventDefault());
 window.addEventListener("keydown", function (e) {
-
   if (
     e.key === "F5" ||
     (e.ctrlKey && e.key.toLowerCase() === "r") ||
@@ -129,12 +127,11 @@ function setTimeBasedVideo() {
     else {
       videoSrc = "videos/night.mp4";
     }
-
     if (Math.random() < 0.05) {
       const surpriseVideos = [
-        "videos/surprise1.mp4", 
-        "videos/surprise2.mp4", 
-        "videos/WhispTune_Serenity.mp4", 
+        "videos/surprise1.mp4",
+        "videos/surprise2.mp4",
+        "videos/WhispTune_Serenity.mp4",
       ];
       videoSrc =
         surpriseVideos[Math.floor(Math.random() * surpriseVideos.length)];
@@ -352,7 +349,6 @@ function showBirthdayInputDialog() {
       skipBtn.style.background = "rgba(255,255,255,0.2)";
       skipBtn.style.transform = "translateY(0)";
     };
-
     monthSelect.onmouseover = () =>
       (monthSelect.style.borderColor = "rgba(255,255,255,0.6)");
     monthSelect.onmouseout = () =>
@@ -367,6 +363,7 @@ function showBirthdayInputDialog() {
       const day = daySelect.value;
 
       if (!month || !day) {
+        // Shake animation for error
         modal.style.animation = "none";
         setTimeout(() => {
           modal.style.animation = "shake 0.5s ease";
@@ -425,7 +422,7 @@ function showBirthdayInputDialog() {
 function checkBirthdayAndSurprise() {
   const storedBirthday = localStorage.getItem("userBirthday");
   const today = new Date();
-  const todayString = `${today.getMonth() + 1}-${today.getDate()}`; 
+  const todayString = `${today.getMonth() + 1}-${today.getDate()}`;
 
   if (!storedBirthday) {
     showBirthdayInputDialog();
@@ -438,7 +435,6 @@ function checkBirthdayAndSurprise() {
 
 function triggerBirthdaySurprise() {
   console.log("🎉 IT'S YOUR BIRTHDAY! 🎉");
-
   const bgImg = document.getElementById("bg-img");
   const coverImg = document.getElementById("cover");
   const birthdayImages = [
@@ -455,16 +451,14 @@ function triggerBirthdaySurprise() {
   if (coverImg && !activePlaylist[activeIndex]?.cover) {
     coverImg.src = randomBirthdayImg;
   }
-
   const videoElement = document.querySelector(".button-video source");
   if (videoElement) {
-    videoElement.src = "videos/birthday.mp4"; 
+    videoElement.src = "videos/birthday.mp4";
     const video = videoElement.parentElement;
     video.load();
   }
   createBirthdayConfetti();
   showBirthdayToast();
-
   function showCustomConfirm(message) {
     return new Promise((resolve) => {
       const backdrop = document.createElement("div");
@@ -540,6 +534,7 @@ function triggerBirthdaySurprise() {
       document.body.appendChild(backdrop);
       document.body.appendChild(modal);
 
+      // Add hover effects
       const yesButton = document.getElementById("confirm-yes");
       const noButton = document.getElementById("confirm-no");
 
@@ -548,23 +543,28 @@ function triggerBirthdaySurprise() {
           yesButton.style.transform = "translateY(-2px)";
           yesButton.style.boxShadow = "0 6px 20px rgba(76, 175, 80, 0.6)";
         };
+
         yesButton.onmouseout = () => {
           yesButton.style.transform = "translateY(0)";
           yesButton.style.boxShadow = "0 4px 15px rgba(76, 175, 80, 0.4)";
         };
+
         noButton.onmouseover = () => {
           noButton.style.transform = "translateY(-2px)";
           noButton.style.boxShadow = "0 6px 20px rgba(244, 67, 54, 0.6)";
         };
+
         noButton.onmouseout = () => {
           noButton.style.transform = "translateY(0)";
           noButton.style.boxShadow = "0 4px 15px rgba(244, 67, 54, 0.4)";
         };
+
         yesButton.onclick = () => {
           document.body.removeChild(backdrop);
           document.body.removeChild(modal);
           resolve(true);
         };
+
         noButton.onclick = () => {
           document.body.removeChild(backdrop);
           document.body.removeChild(modal);
@@ -578,15 +578,15 @@ function triggerBirthdaySurprise() {
       }
     });
   }
-
   setTimeout(async () => {
     try {
+      // Check if browser is online
       if (!navigator.onLine) {
         console.log("🚫 Offline: Birthday music prompt skipped");
         return;
       }
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
 
       try {
         await fetch("https://www.google.com", {
@@ -625,7 +625,6 @@ function triggerBirthdaySurprise() {
       console.log("❌ Error occurred. Skipping music.");
     }
   }, 5000);
-
   localStorage.setItem("birthdayCelebratedToday", new Date().toDateString());
 }
 
@@ -643,30 +642,8 @@ function createBirthdayConfetti() {
     `;
   document.body.appendChild(confettiContainer);
 
-  const confettiEmojis = [
-    "🎉",
-    "🎊",
-    "🎂",
-    "🥳",
-    "🎈",
-    "🎁",
-    "✨",
-    "🌟",
-    "💖",
-    "🦄",
-    "🍰",
-    "🎵",
-  ];
-  const colors = [
-    "#ff6b6b",
-    "#4ecdc4",
-    "#45b7d1",
-    "#96ceb4",
-    "#ffeaa7",
-    "#fd79a8",
-  ];
-
-  // Create 50 confetti pieces
+  const confettiEmojis = ["🎉","🎊","🎂","🥳","🎈","🎁","✨","🌟","💖","🦄","🍰","🎵",];
+  const colors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7", "#fd79a8",];
   for (let i = 0; i < 50; i++) {
     const confetti = document.createElement("div");
     confetti.textContent =
@@ -715,7 +692,6 @@ function showBirthdayToast() {
   ];
   const randomQuote =
     birthdayQuotes[Math.floor(Math.random() * birthdayQuotes.length)];
-
   const birthdayToast = document.createElement("div");
   birthdayToast.className = "birthday-toast";
   birthdayToast.innerHTML = `
@@ -745,6 +721,7 @@ function showBirthdayToast() {
     `;
 
   document.body.appendChild(birthdayToast);
+
   anime({
     targets: birthdayToast,
     opacity: [0, 1],
@@ -770,30 +747,29 @@ function scheduleBirthdayCheck() {
   const now = new Date();
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);
-  tomorrow.setHours(0, 0, 1, 0); 
+  tomorrow.setHours(0, 0, 1, 0);
 
   const msUntilMidnight = tomorrow.getTime() - now.getTime();
 
   setTimeout(() => {
     checkBirthdayAndSurprise();
-    scheduleBirthdayCheck(); 
+    scheduleBirthdayCheck();
   }, msUntilMidnight);
 }
-
 scheduleBirthdayCheck();
 
 let activePlaylist = [];
 let activeIndex = 0;
 let songs = [];
-let currentHowl = null; 
+let currentHowl = null;
 let isLoopOnce = false;
 let isLoop = false;
 let isShuffle = false;
-let shuffledIndices = []; 
+let shuffledIndices = [];
 let shuffledPlaybackIndex = 0;
 let showFallbackImage = false;
 let blobUrls = [];
-let lightningInterval = null; 
+let lightningInterval = null;
 
 function cleanupBlobUrls() {
   blobUrls.forEach((url) => {
@@ -812,7 +788,6 @@ function capitalizeWords(str) {
 
 function togglePlay() {
   if (!currentHowl) return;
-
   if (currentHowl.playing()) {
     currentHowl.pause();
     playBtn.src = "icons/play.svg";
@@ -821,7 +796,6 @@ function togglePlay() {
     playBtn.src = "icons/pause.svg";
   }
 }
-
 function playMusic() {
   if (!currentHowl && songs.length > 0) {
     loadMusic(activePlaylist[activeIndex]);
@@ -831,7 +805,6 @@ function playMusic() {
     document.getElementById("play").src = "icons/pause.svg";
   }
 }
-
 function pauseMusic() {
   if (currentHowl) {
     currentHowl.pause();
@@ -845,6 +818,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
   }
 
   const isOnline = song.stream_url !== undefined;
+
   const songTitle = isOnline ? song.title : song.displayName;
   const songArtist = song.artist || "Unknown Artist";
 
@@ -880,7 +854,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     src: [isOnline ? song.stream_url : song.path],
     html5: true,
     format: [isOnline ? "m4a" : song.format],
-    volume: userSettings.volume,
+    volume: userSettings.volume, // Apply saved volume
     onplay: () => {
       updateProgressBar();
       highlightCurrentSong();
@@ -906,7 +880,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
       if (!isLastSong) {
         changeMusic(1);
       } else if (isLoop) {
-        changeMusic(1); 
+        changeMusic(1);
       } else {
         pauseMusic();
         playBtn.src = "icons/play.svg";
@@ -916,7 +890,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
 }
 
 function setRandomAssetImage() {
-  const randomImageNumber = Math.floor(Math.random() * 18) + 1; 
+  const randomImageNumber = Math.floor(Math.random() * 18) + 1;
   const randomImage = `assets/image${randomImageNumber}.jpg`;
   image.src = randomImage;
   background.src = randomImage;
@@ -973,9 +947,9 @@ function setProgressBar(e) {
   if (!currentHowl) return;
 
   const width = playerProgress.clientWidth; 
-  const clickX = e.offsetX; 
-  const duration = currentHowl.duration(); 
-  currentHowl.seek((clickX / width) * duration); 
+  const clickX = e.offsetX;
+  const duration = currentHowl.duration();
+  currentHowl.seek((clickX / width) * duration);
 }
 
 function resetShuffleState() {
@@ -989,13 +963,13 @@ function resetShuffleState() {
 
 function finalizeSongLoad() {
   songs.sort((a, b) => a.displayName.localeCompare(b.displayName));
-  resetShuffleState(); 
+  resetShuffleState();
   if (songs.length > 0) {
     activePlaylist = songs;
     activeIndex = 0;
     loadMusic(activePlaylist[activeIndex]);
     playMusic();
-    updateSongList(); 
+    updateSongList();
     highlightCurrentSong();
     console.log("Total songs loaded:", songs.length);
   } else {
@@ -1010,7 +984,6 @@ function updateSongList() {
     return;
   }
   songListEl.innerHTML = "";
-  let draggedIndex = null; 
 
   activePlaylist.forEach((song, index) => {
     const li = document.createElement("li");
@@ -1018,64 +991,12 @@ function updateSongList() {
     li.style.cursor = "pointer";
     li.style.padding = "5px";
     li.classList.toggle("active", index === activeIndex);
-    li.draggable = true; 
-    li.dataset.index = index; 
+    li.dataset.index = index; // Store the index
 
     li.addEventListener("click", () => {
       activeIndex = index;
       loadMusic(activePlaylist[activeIndex]);
       playMusic();
-      highlightCurrentSong();
-    });
-    li.addEventListener("dragstart", (e) => {
-      const el = e.currentTarget;
-      draggedIndex = parseInt(el.dataset.index);
-      e.dataTransfer.effectAllowed = "move";
-      try {
-        e.dataTransfer.setData("text/plain", draggedIndex.toString());
-      } catch (_) {}
-      setTimeout(() => el.classList.add("dragging"), 0);
-    });
-
-    li.addEventListener("dragend", (e) => {
-      e.currentTarget.classList.remove("dragging");
-      Array.from(songListEl.children).forEach((item) =>
-        item.classList.remove("drag-over")
-      );
-      draggedIndex = null;
-    });
-
-    li.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.dataTransfer.dropEffect = "move";
-      const target = e.currentTarget;
-      if (!target.classList.contains("drag-over")) {
-        Array.from(songListEl.children).forEach((item) =>
-          item.classList.remove("drag-over")
-        );
-        target.classList.add("drag-over");
-      }
-    });
-
-    li.addEventListener("drop", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const target = e.currentTarget;
-      const droppedIndex = parseInt(target.dataset.index);
-      target.classList.remove("drag-over");
-
-      if (
-        draggedIndex === null ||
-        isNaN(droppedIndex) ||
-        draggedIndex === droppedIndex
-      )
-        return;
-      const playingSong = activePlaylist[activeIndex];
-      const [movedSong] = activePlaylist.splice(draggedIndex, 1);
-      activePlaylist.splice(droppedIndex, 0, movedSong);
-      activeIndex = activePlaylist.indexOf(playingSong);
-      updateSongList();
       highlightCurrentSong();
     });
 
@@ -1121,17 +1042,17 @@ function updateAlbumArt() {
 
 function toggleLoopMode() {
   if (!isLoopOnce && !isLoop) {
-    isLoop = true; 
+    isLoop = true;
     isLoopOnce = false;
-    updateLoopButton("repeat.svg", false); 
+    updateLoopButton("repeat.svg", false);
   } else if (isLoop) {
     isLoop = false;
-    isLoopOnce = true; 
-    updateLoopButton("repeat-1.svg", false); 
+    isLoopOnce = true;
+    updateLoopButton("repeat-1.svg", false);
   } else if (isLoopOnce) {
     isLoop = false;
-    isLoopOnce = false; 
-    updateLoopButton("repeat-disabled.svg", true); 
+    isLoopOnce = false;
+    updateLoopButton("repeat-disabled.svg", true);
   }
   const loopBtn = document.getElementById("loop-shuffle-btn");
   const rect = loopBtn.getBoundingClientRect();
@@ -1142,7 +1063,6 @@ function toggleLoopMode() {
   const y = rect.top - containerRect.top + rect.height / 2;
   loopShuffleBurst(x, y);
 }
-
 function updateLoopButton(iconPath) {
   const icon = document.getElementById("loop-icon");
   if (icon) {
@@ -1158,12 +1078,11 @@ function updateShuffleButton(iconPath) {
     icon.classList.add("active");
   }
 }
-
 function toggleShuffle() {
   isShuffle = !isShuffle;
   updateShuffleButton(
     isShuffle ? "shuffle.svg" : "shuffle-disabled.svg",
-    !isShuffle 
+    !isShuffle
   );
 
   if (isShuffle && activePlaylist.length > 0) {
@@ -1174,9 +1093,8 @@ function toggleShuffle() {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
-
     shuffledIndices = [currentSongIndex, ...indices];
-    shuffledPlaybackIndex = 0; 
+    shuffledPlaybackIndex = 0;
   } else {
     shuffledIndices = [];
   }
@@ -1190,22 +1108,10 @@ function toggleShuffle() {
   const y = rect.top - containerRect.top + rect.height / 2;
   loopShuffleBurst(x, y);
 }
-updateShuffleButton("shuffle-disabled.svg", false); 
+updateShuffleButton("shuffle-disabled.svg", false);
 
 function loopShuffleBurst(centerX, centerY) {
-  const glyphs = [
-    "🦁",
-    "🌲",
-    "❄️",
-    "🕯️",
-    "✨",
-    "🍃",
-    "🌌",
-    "⛅",
-    "🌀",
-    "🦢",
-    "🎶",
-  ];
+  const glyphs = ["🦁","🌲","❄️","🕯️","✨","🍃","🌌","⛅","🌀","🦢","🎶",];
   const burstContainer = document.getElementById("loop-burst");
   burstContainer.innerHTML = "";
   burstContainer.classList.remove("hidden");
@@ -1236,6 +1142,7 @@ function loopShuffleBurst(centerX, centerY) {
   setTimeout(() => burstContainer.classList.add("hidden"), 1000);
 }
 
+//Tauri-Specific File Loading Logic
 async function loadSongsFromFolderTauri() {
   console.log("Attempting to load songs from folder via Tauri...");
   showLoader("Importing songs…");
@@ -1332,7 +1239,6 @@ async function loadSongsFromFolderTauri() {
     hideLoader();
   }
 }
-
 async function loadPlaylist(query) {
   showLoader("Fetching tracks…");
   try {
@@ -1374,6 +1280,7 @@ document
 shuffleBtn.addEventListener("click", toggleShuffle);
 loopShuffleBtn.addEventListener("click", toggleLoopMode);
 
+// Show volume toast message
 function showVolumeToast(volume) {
   const toast = document.getElementById("volume-toast");
   const icon = toast.querySelector("img");
@@ -1391,7 +1298,10 @@ function showVolumeToast(volume) {
       icon.alt = "High Volume";
     }
     bar.style.width = `${Math.round(volume * 100)}%`;
+
     toast.style.display = "flex";
+
+    // Cancel any previous anime.js animations
     if (toast._anime) toast._anime.pause();
     toast._anime = anime({
       targets: toast,
@@ -1458,21 +1368,21 @@ document.addEventListener("keydown", (e) => {
     if (currentHowl) {
       const newVol = Math.min(currentHowl.volume() + 0.1, 1);
       currentHowl.volume(newVol);
-      userSettings.volume = newVol; 
-      debouncedSaveSettings(); 
-      showVolumeToast(newVol); 
+      userSettings.volume = newVol;
+      debouncedSaveSettings();
+      showVolumeToast(newVol);
     }
   } else if (e.code === "ArrowDown") {
     if (currentHowl) {
       const newVol = Math.max(currentHowl.volume() - 0.1, 0);
       currentHowl.volume(newVol);
-      userSettings.volume = newVol; 
+      userSettings.volume = newVol;
       debouncedSaveSettings();
-      showVolumeToast(newVol); 
+      showVolumeToast(newVol);
     }
   } else if (e.key === "f" || e.key === "F") {
     showFallbackImage = !showFallbackImage;
-    updateAlbumArt();
+    updateAlbumArt(); 
   }
 });
 
@@ -1482,7 +1392,7 @@ function updateMediaSession(song) {
     navigator.mediaSession.metadata = new window.MediaMetadata({
       title: song.displayName || song.title,
       artist: song.artist,
-      album: "", 
+      album: "", // Optional
       artwork: artworkUrl
         ? [{ src: artworkUrl, sizes: "512x512", type: "image/png" }]
         : [],
@@ -1575,10 +1485,12 @@ function updateMediaSession(song) {
       }
     });
 
-  const QUERY_MODAL_OPEN_DELAY = 1900; 
+  const QUERY_MODAL_OPEN_DELAY = 1900;
+
   document.addEventListener("keydown", async (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === "o") {
       e.preventDefault();
+      // keep the magical burst for flair
       const x = e.clientX || window.innerWidth / 2;
       const y = e.clientY || window.innerHeight / 2;
       magicalBurst(x, y);
@@ -1618,6 +1530,7 @@ function updateMediaSession(song) {
         duration: 2400,
         easing: "easeInOutQuad",
       });
+
       await new Promise((res) => setTimeout(res, QUERY_MODAL_OPEN_DELAY));
       burst.classList.add("hidden");
       label.classList.add("hidden");
@@ -1657,7 +1570,8 @@ function magicalBurst(x, y) {
 const rainVideos = ["videos/rain1.mp4", "videos/rain2.mp4", "videos/rain3.mp4"];
 
 let originalBodyBackground = ""; 
-let currentRainVideoElement = null; 
+let currentRainVideoElement = null;
+
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.key.toLowerCase() === "k") {
     document.documentElement.classList.toggle("rain-mode");
@@ -1665,13 +1579,17 @@ document.addEventListener("keydown", function (e) {
       document.documentElement.classList.contains("rain-mode");
 
     if (isRainActive) {
+      // Store the original background before changing it
       originalBodyBackground = document.body.style.background;
+
+      // Select a random rain video
       const randomVideo =
         rainVideos[Math.floor(Math.random() * rainVideos.length)];
 
-      addRainVideoBackground(randomVideo); 
+      addRainVideoBackground(randomVideo); // Pass the video path
     } else {
-      removeRainVideoBackground(); 
+      removeRainVideoBackground(); // Call function to remove video background
+      // Restore the original background
       document.body.style.background = originalBodyBackground;
       currentRainVideoElement = null;
     }
@@ -1682,10 +1600,10 @@ function addRainVideoBackground(videoPath) {
   if (!document.getElementById("rain-video")) {
     const video = document.createElement("video");
     video.id = "rain-video";
-    video.src = videoPath; 
+    video.src = videoPath;
     video.autoplay = true;
     video.loop = true;
-    video.muted = false; 
+    video.muted = false;
     video.volume = 0.3;
     video.style.position = "fixed";
     video.style.top = "0";
@@ -1693,15 +1611,13 @@ function addRainVideoBackground(videoPath) {
     video.style.width = "100%";
     video.style.height = "100%";
     video.style.objectFit = "cover";
-    video.style.zIndex = "-1"; 
+    video.style.zIndex = "-1";
     video.style.opacity = "1";
     document.body.appendChild(video);
     currentRainVideoElement = video;
-
     document.body.style.background = "transparent";
   }
 }
-
 function removeRainVideoBackground() {
   const video = document.getElementById("rain-video");
   if (video) video.remove();
@@ -1713,7 +1629,6 @@ function triggerLightning() {
   document.body.appendChild(flash);
   setTimeout(() => flash.remove(), 500);
 }
-
 function initializeLightningInterval() {
   if (lightningInterval) {
     clearInterval(lightningInterval);
@@ -1726,7 +1641,6 @@ function initializeLightningInterval() {
   }, 5000);
 }
 initializeLightningInterval();
-
 function performCompleteCleanup() {
   console.log("Performing complete cleanup to prevent memory leaks...");
   cleanupBlobUrls();
@@ -1755,9 +1669,11 @@ function performCompleteCleanup() {
 
   console.log("Cleanup completed successfully");
 }
+
 window.addEventListener("beforeunload", performCompleteCleanup);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
+    // Pause audio when tab is hidden to save resources
     if (currentHowl && currentHowl.playing()) {
       currentHowl.pause();
     }
