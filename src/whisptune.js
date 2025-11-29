@@ -1,10 +1,8 @@
 const { invoke } = window.__TAURI__.core;
-
 let userSettings = {
   volume: 0.5,
   global_shortcuts_enabled: true,
 };
-
 async function loadUserSettings() {
   try {
     userSettings = await invoke("load_user_settings");
@@ -15,7 +13,6 @@ async function loadUserSettings() {
     return userSettings;
   }
 }
-
 async function saveUserSettings() {
   try {
     await invoke("save_user_settings", { settings: userSettings });
@@ -24,7 +21,6 @@ async function saveUserSettings() {
     console.error("Failed to save settings:", error);
   }
 }
-
 let saveTimeout = null;
 function debouncedSaveSettings() {
   if (saveTimeout) clearTimeout(saveTimeout);
@@ -32,7 +28,6 @@ function debouncedSaveSettings() {
     saveUserSettings();
   }, 500);
 }
-
 const image = document.getElementById("cover");
 const title = document.getElementById("music-title");
 const artist = document.getElementById("music-artist");
@@ -44,8 +39,8 @@ const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 const playBtn = document.getElementById("play");
 const background = document.getElementById("bg-img");
-const loopShuffleBtn = document.getElementById("loop-shuffle-btn");
-const shuffleBtn = document.getElementById("shuffle-btn");
+const loopShuffleBtn = document.getElementById("loop-shuffle-btn"); 
+const shuffleBtn = document.getElementById("shuffle-btn"); 
 const loaderEl = document.getElementById("global-loader");
 const loaderTextEl = document.getElementById("loader-text");
 let loaderRefCount = 0;
@@ -58,7 +53,6 @@ function hideLoader() {
   loaderRefCount = Math.max(0, loaderRefCount - 1);
   if (loaderEl && loaderRefCount === 0) loaderEl.classList.add("hidden");
 }
-
 window.addEventListener("contextmenu", function (e) {
   e.preventDefault();
 });
@@ -114,7 +108,6 @@ function setTimeBasedVideo() {
 
   if (videoElement) {
     let videoSrc;
-
     if (hour >= 6 && hour < 12) {
       videoSrc = "videos/morning.mp4";
     }
@@ -137,7 +130,6 @@ function setTimeBasedVideo() {
         surpriseVideos[Math.floor(Math.random() * surpriseVideos.length)];
       console.log("🎉 Surprise video activated!", videoSrc);
     }
-
     if (videoElement.src !== videoSrc) {
       videoElement.src = videoSrc;
       const video = videoElement.parentElement;
@@ -145,10 +137,8 @@ function setTimeBasedVideo() {
     }
   }
 }
-
 setTimeBasedVideo();
 setInterval(setTimeBasedVideo, 3600000);
-
 function showBirthdayInputDialog() {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
@@ -326,12 +316,10 @@ function showBirthdayInputDialog() {
 
     document.body.appendChild(backdrop);
     document.body.appendChild(modal);
-
     const monthSelect = document.getElementById("birth-month");
     const daySelect = document.getElementById("birth-day");
     const saveBtn = document.getElementById("save-birthday-btn");
     const skipBtn = document.getElementById("skip-birthday-btn");
-
     saveBtn.onmouseover = () => {
       saveBtn.style.transform = "translateY(-2px)";
       saveBtn.style.boxShadow = "0 8px 25px rgba(76, 175, 80, 0.6)";
@@ -357,13 +345,11 @@ function showBirthdayInputDialog() {
       (daySelect.style.borderColor = "rgba(255,255,255,0.6)");
     daySelect.onmouseout = () =>
       (daySelect.style.borderColor = "rgba(255,255,255,0.3)");
-
     saveBtn.onclick = () => {
       const month = monthSelect.value;
       const day = daySelect.value;
 
       if (!month || !day) {
-        // Shake animation for error
         modal.style.animation = "none";
         setTimeout(() => {
           modal.style.animation = "shake 0.5s ease";
@@ -376,7 +362,6 @@ function showBirthdayInputDialog() {
       const birthday = `${month}-${day}`;
       localStorage.setItem("userBirthday", birthday);
       console.log("🎂 Birthday saved:", birthday);
-
       modal.style.animation = "slideOut 0.3s ease forwards";
       backdrop.style.animation = "fadeOut 0.3s ease forwards";
 
@@ -386,7 +371,6 @@ function showBirthdayInputDialog() {
         resolve(birthday);
       }, 300);
     };
-
     skipBtn.onclick = () => {
       modal.style.animation = "slideOut 0.3s ease forwards";
       backdrop.style.animation = "fadeOut 0.3s ease forwards";
@@ -397,7 +381,6 @@ function showBirthdayInputDialog() {
         resolve(null);
       }, 300);
     };
-
     const style = document.createElement("style");
     style.textContent = `
       @keyframes shake {
@@ -486,7 +469,7 @@ function triggerBirthdaySurprise() {
             z-index: 10001;
             text-align: center;
             font-family: 'Segoe UI', Arial, sans-serif;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             max-width: 90%;
             max-height: 90%;
         `;
@@ -533,8 +516,6 @@ function triggerBirthdaySurprise() {
 
       document.body.appendChild(backdrop);
       document.body.appendChild(modal);
-
-      // Add hover effects
       const yesButton = document.getElementById("confirm-yes");
       const noButton = document.getElementById("confirm-no");
 
@@ -580,7 +561,6 @@ function triggerBirthdaySurprise() {
   }
   setTimeout(async () => {
     try {
-      // Check if browser is online
       if (!navigator.onLine) {
         console.log("🚫 Offline: Birthday music prompt skipped");
         return;
@@ -642,8 +622,28 @@ function createBirthdayConfetti() {
     `;
   document.body.appendChild(confettiContainer);
 
-  const confettiEmojis = ["🎉","🎊","🎂","🥳","🎈","🎁","✨","🌟","💖","🦄","🍰","🎵",];
-  const colors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#ffeaa7", "#fd79a8",];
+  const confettiEmojis = [
+    "🎉",
+    "🎊",
+    "🎂",
+    "🥳",
+    "🎈",
+    "🎁",
+    "✨",
+    "🌟",
+    "💖",
+    "🦄",
+    "🍰",
+    "🎵",
+  ];
+  const colors = [
+    "#ff6b6b",
+    "#4ecdc4",
+    "#45b7d1",
+    "#96ceb4",
+    "#ffeaa7",
+    "#fd79a8",
+  ];
   for (let i = 0; i < 50; i++) {
     const confetti = document.createElement("div");
     confetti.textContent =
@@ -719,9 +719,7 @@ function showBirthdayToast() {
         opacity: 0;
         scale: 0.8;
     `;
-
   document.body.appendChild(birthdayToast);
-
   anime({
     targets: birthdayToast,
     opacity: [0, 1],
@@ -743,6 +741,7 @@ function showBirthdayToast() {
   });
 }
 checkBirthdayAndSurprise();
+
 function scheduleBirthdayCheck() {
   const now = new Date();
   const tomorrow = new Date(now);
@@ -769,7 +768,10 @@ let shuffledIndices = [];
 let shuffledPlaybackIndex = 0;
 let showFallbackImage = false;
 let blobUrls = [];
-let lightningInterval = null;
+let lightningInterval = null; 
+let progressRAFId = null;
+let lastProgressUpdate = 0;
+const PROGRESS_UPDATE_INTERVAL = 250;
 
 function cleanupBlobUrls() {
   blobUrls.forEach((url) => {
@@ -781,19 +783,25 @@ function cleanupBlobUrls() {
   });
   blobUrls = [];
 }
-
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
-
 function togglePlay() {
   if (!currentHowl) return;
+
   if (currentHowl.playing()) {
     currentHowl.pause();
     playBtn.src = "icons/play.svg";
+    if (progressRAFId !== null) {
+      cancelAnimationFrame(progressRAFId);
+      progressRAFId = null;
+    }
   } else {
     currentHowl.play();
     playBtn.src = "icons/pause.svg";
+    if (progressRAFId === null) {
+      progressRAFId = requestAnimationFrame(updateProgressBar);
+    }
   }
 }
 function playMusic() {
@@ -802,13 +810,20 @@ function playMusic() {
   }
   if (currentHowl) {
     currentHowl.play();
-    document.getElementById("play").src = "icons/pause.svg";
+    playBtn.src = "icons/pause.svg";
+    if (progressRAFId === null) {
+      progressRAFId = requestAnimationFrame(updateProgressBar);
+    }
   }
 }
 function pauseMusic() {
   if (currentHowl) {
     currentHowl.pause();
-    document.getElementById("play").src = "icons/play.svg";
+    playBtn.src = "icons/play.svg";
+  }
+  if (progressRAFId !== null) {
+    cancelAnimationFrame(progressRAFId);
+    progressRAFId = null;
   }
 }
 
@@ -818,10 +833,8 @@ function loadMusic(song = activePlaylist[activeIndex]) {
   }
 
   const isOnline = song.stream_url !== undefined;
-
   const songTitle = isOnline ? song.title : song.displayName;
   const songArtist = song.artist || "Unknown Artist";
-
   title.textContent = songTitle;
   artist.textContent = songArtist;
 
@@ -854,9 +867,11 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     src: [isOnline ? song.stream_url : song.path],
     html5: true,
     format: [isOnline ? "m4a" : song.format],
-    volume: userSettings.volume, // Apply saved volume
+    volume: userSettings.volume,
     onplay: () => {
-      updateProgressBar();
+      if (progressRAFId === null) {
+        progressRAFId = requestAnimationFrame(updateProgressBar);
+      }
       highlightCurrentSong();
     },
     onload: () => {
@@ -876,7 +891,6 @@ function loadMusic(song = activePlaylist[activeIndex]) {
       const isLastSong = isShuffle
         ? shuffledPlaybackIndex >= shuffledIndices.length - 1
         : activeIndex >= activePlaylist.length - 1;
-
       if (!isLastSong) {
         changeMusic(1);
       } else if (isLoop) {
@@ -888,14 +902,12 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     },
   });
 }
-
 function setRandomAssetImage() {
-  const randomImageNumber = Math.floor(Math.random() * 18) + 1;
+  const randomImageNumber = Math.floor(Math.random() * 18) + 1; 
   const randomImage = `assets/image${randomImageNumber}.jpg`;
   image.src = randomImage;
   background.src = randomImage;
 }
-
 function changeMusic(direction) {
   if (activePlaylist.length === 0) {
     console.warn("No songs loaded to change music.");
@@ -916,42 +928,49 @@ function changeMusic(direction) {
   playMusic();
   highlightCurrentSong();
 }
-
 function updateProgressBar() {
   if (!currentHowl) return;
+
   const duration = currentHowl.duration();
   if (!duration || isNaN(duration)) {
-    requestAnimationFrame(updateProgressBar);
+    progressRAFId = requestAnimationFrame(updateProgressBar);
     return;
   }
 
   const currentTime = currentHowl.seek() || 0;
-  const progressPercent = (currentTime / duration) * 100;
-  progress.style.width = `${progressPercent}%`;
+  const now = performance.now();
 
-  const formatTime = (timeInSeconds) => {
-    const mins = Math.floor(timeInSeconds / 60);
-    const secs = Math.floor(timeInSeconds % 60);
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
+  if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL) {
+    lastProgressUpdate = now;
+    const progressPercent = (currentTime / duration) * 100;
+    progress.style.width = `${progressPercent}%`;
 
-  currentTimeEl.textContent = formatTime(currentTime);
-  durationEl.textContent = formatTime(duration);
+    const minsCurrent = Math.floor(currentTime / 60);
+    const secsCurrent = Math.floor(currentTime % 60);
+    const minsTotal = Math.floor(duration / 60);
+    const secsTotal = Math.floor(duration % 60);
 
+    currentTimeEl.textContent = `${minsCurrent}:${secsCurrent
+      .toString()
+      .padStart(2, "0")}`;
+    durationEl.textContent = `${minsTotal}:${secsTotal
+      .toString()
+      .padStart(2, "0")}`;
+  }
   if (currentHowl.playing()) {
-    requestAnimationFrame(updateProgressBar);
+    progressRAFId = requestAnimationFrame(updateProgressBar);
+  } else {
+    progressRAFId = null;
   }
 }
-
 function setProgressBar(e) {
   if (!currentHowl) return;
 
-  const width = playerProgress.clientWidth; 
+  const width = playerProgress.clientWidth;
   const clickX = e.offsetX;
   const duration = currentHowl.duration();
   currentHowl.seek((clickX / width) * duration);
 }
-
 function resetShuffleState() {
   if (isShuffle) {
     isShuffle = false;
@@ -960,7 +979,6 @@ function resetShuffleState() {
     shuffledPlaybackIndex = 0;
   }
 }
-
 function finalizeSongLoad() {
   songs.sort((a, b) => a.displayName.localeCompare(b.displayName));
   resetShuffleState();
@@ -976,7 +994,6 @@ function finalizeSongLoad() {
     alert("No supported audio files found after processing.");
   }
 }
-
 function updateSongList() {
   const songListEl = document.getElementById("song-list");
   if (!songListEl) {
@@ -991,7 +1008,7 @@ function updateSongList() {
     li.style.cursor = "pointer";
     li.style.padding = "5px";
     li.classList.toggle("active", index === activeIndex);
-    li.dataset.index = index; // Store the index
+    li.dataset.index = index;
 
     li.addEventListener("click", () => {
       activeIndex = index;
@@ -1004,7 +1021,6 @@ function updateSongList() {
   });
   console.log("Song list updated:", songListEl.children.length, "items");
 }
-
 function highlightCurrentSong() {
   const songListEl = document.getElementById("song-list");
   if (!songListEl) return;
@@ -1012,7 +1028,6 @@ function highlightCurrentSong() {
     li.classList.toggle("active", index === activeIndex);
   });
 }
-
 document.getElementById("menu-toggle").addEventListener("change", function () {
   const songListEl = document.getElementById("song-list");
   if (songListEl) {
@@ -1025,7 +1040,6 @@ document.getElementById("menu-toggle").addEventListener("change", function () {
     }
   }
 });
-
 function updateAlbumArt() {
   const song = activePlaylist[activeIndex];
   if (showFallbackImage || !song || !song.cover) {
@@ -1039,7 +1053,6 @@ function updateAlbumArt() {
     background.src = song.cover;
   }
 }
-
 function toggleLoopMode() {
   if (!isLoopOnce && !isLoop) {
     isLoop = true;
@@ -1108,6 +1121,7 @@ function toggleShuffle() {
   const y = rect.top - containerRect.top + rect.height / 2;
   loopShuffleBurst(x, y);
 }
+
 updateShuffleButton("shuffle-disabled.svg", false);
 
 function loopShuffleBurst(centerX, centerY) {
@@ -1141,8 +1155,6 @@ function loopShuffleBurst(centerX, centerY) {
 
   setTimeout(() => burstContainer.classList.add("hidden"), 1000);
 }
-
-//Tauri-Specific File Loading Logic
 async function loadSongsFromFolderTauri() {
   console.log("Attempting to load songs from folder via Tauri...");
   showLoader("Importing songs…");
@@ -1163,73 +1175,78 @@ async function loadSongsFromFolderTauri() {
     }
 
     console.log("Received file paths from Rust:", filePaths);
-
     songs = [];
     let processed = 0;
+    const BATCH_SIZE = 5;
 
-    await Promise.all(
-      filePaths.map(async (filePathData) => {
-        try {
-          const fileContentBytes = await invoke("read_file_content", {
-            path: filePathData.path,
-          });
-          const blob = new Blob([new Uint8Array(fileContentBytes)], {
-            type: `audio/${filePathData.extension}`,
-          });
-          const url = URL.createObjectURL(blob);
-          blobUrls.push(url);
+    for (let i = 0; i < filePaths.length; i += BATCH_SIZE) {
+      const batch = filePaths.slice(i, i + BATCH_SIZE);
 
-          await new Promise((resolve) => {
-            window.jsmediatags.read(blob, {
-              onSuccess: function (tag) {
-                let displayName =
-                  tag.tags.title ||
-                  capitalizeWords(
-                    filePathData.file_name.replace(/\.[^/.]+$/, "")
-                  );
-                let artistName = tag.tags.artist || "Unknown Artist";
-                let coverUrl = null;
-                if (tag.tags.picture) {
-                  const { data, format } = tag.tags.picture;
-                  let byteArray = new Uint8Array(data);
-                  let coverBlob = new Blob([byteArray], { type: format });
-                  coverUrl = URL.createObjectURL(coverBlob);
-                  blobUrls.push(coverUrl);
-                }
-
-                songs.push({
-                  path: url,
-                  displayName,
-                  artist: artistName,
-                  format: filePathData.extension,
-                  cover: coverUrl,
-                });
-                resolve();
-              },
-              onError: function () {
-                songs.push({
-                  path: url,
-                  displayName: capitalizeWords(
-                    filePathData.file_name.replace(/\.[^/.]+$/, "")
-                  ),
-
-                  artist: "Unknown Artist",
-                  format: filePathData.extension,
-                  cover: null,
-                });
-                resolve();
-              },
+      await Promise.all(
+        batch.map(async (filePathData) => {
+          try {
+            const fileContentBytes = await invoke("read_file_content", {
+              path: filePathData.path,
             });
-          });
-        } catch (error) {
-          console.error(`Error processing file ${filePathData.path}:`, error);
-        } finally {
-          processed++;
-          if (loaderTextEl)
-            loaderTextEl.textContent = `Importing songs… (${processed}/${filePaths.length})`;
-        }
-      })
-    );
+            const blob = new Blob([new Uint8Array(fileContentBytes)], {
+              type: `audio/${filePathData.extension}`,
+            });
+            const url = URL.createObjectURL(blob);
+            blobUrls.push(url);
+
+            await new Promise((resolve) => {
+              window.jsmediatags.read(blob, {
+                onSuccess: function (tag) {
+                  let displayName =
+                    tag.tags.title ||
+                    capitalizeWords(
+                      filePathData.file_name.replace(/\.[^/.]+$/, "")
+                    );
+                  let artistName = tag.tags.artist || "Unknown Artist";
+                  let coverUrl = null;
+                  if (tag.tags.picture) {
+                    const { data, format } = tag.tags.picture;
+                    let byteArray = new Uint8Array(data);
+                    let coverBlob = new Blob([byteArray], { type: format });
+                    coverUrl = URL.createObjectURL(coverBlob);
+                    blobUrls.push(coverUrl);
+                  }
+
+                  songs.push({
+                    path: url,
+                    displayName,
+                    artist: artistName,
+                    format: filePathData.extension,
+                    cover: coverUrl,
+                  });
+                  resolve();
+                },
+                onError: function () {
+                  songs.push({
+                    path: url,
+                    displayName: capitalizeWords(
+                      filePathData.file_name.replace(/\.[^/.]+$/, "")
+                    ),
+
+                    artist: "Unknown Artist",
+                    format: filePathData.extension,
+                    cover: null,
+                  });
+                  resolve();
+                },
+              });
+            });
+          } catch (error) {
+            console.error(`Error processing file ${filePathData.path}:`, error);
+          } finally {
+            processed++;
+            if (loaderTextEl)
+              loaderTextEl.textContent = `Importing songs… (${processed}/${filePaths.length})`;
+          }
+        })
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
 
     finalizeSongLoad();
   } catch (error) {
@@ -1246,13 +1263,10 @@ async function loadPlaylist(query) {
     const result = await invoke("search_playlist_and_stream", {
       songName: query,
     });
-
     activePlaylist = result;
     songs = result;
     activeIndex = 0;
-
     updateSongList();
-
     if (activePlaylist.length > 0 && activePlaylist[activeIndex]) {
       loadMusic(activePlaylist[activeIndex]);
       playMusic();
@@ -1273,14 +1287,9 @@ prevBtn.addEventListener("click", () => changeMusic(-1));
 nextBtn.addEventListener("click", () => changeMusic(1));
 playerProgress.addEventListener("click", setProgressBar);
 
-document
-  .getElementById("add-folder-btn")
-  .addEventListener("click", loadSongsFromFolderTauri);
-
+document.getElementById("add-folder-btn").addEventListener("click", loadSongsFromFolderTauri);
 shuffleBtn.addEventListener("click", toggleShuffle);
-loopShuffleBtn.addEventListener("click", toggleLoopMode);
-
-// Show volume toast message
+loopShuffleBtn.addEventListener("click", toggleLoopMode); 
 function showVolumeToast(volume) {
   const toast = document.getElementById("volume-toast");
   const icon = toast.querySelector("img");
@@ -1298,10 +1307,7 @@ function showVolumeToast(volume) {
       icon.alt = "High Volume";
     }
     bar.style.width = `${Math.round(volume * 100)}%`;
-
     toast.style.display = "flex";
-
-    // Cancel any previous anime.js animations
     if (toast._anime) toast._anime.pause();
     toast._anime = anime({
       targets: toast,
@@ -1316,7 +1322,6 @@ function showVolumeToast(volume) {
         toast.style.transform = "translate(-50%, 60px) scale(0.98)";
       },
     });
-
     clearTimeout(toast._timeout);
     toast._timeout = setTimeout(() => {
       if (toast._anime) toast._anime.pause();
@@ -1378,11 +1383,11 @@ document.addEventListener("keydown", (e) => {
       currentHowl.volume(newVol);
       userSettings.volume = newVol;
       debouncedSaveSettings();
-      showVolumeToast(newVol);
+      showVolumeToast(newVol); 
     }
   } else if (e.key === "f" || e.key === "F") {
     showFallbackImage = !showFallbackImage;
-    updateAlbumArt(); 
+    updateAlbumArt();
   }
 });
 
@@ -1392,12 +1397,11 @@ function updateMediaSession(song) {
     navigator.mediaSession.metadata = new window.MediaMetadata({
       title: song.displayName || song.title,
       artist: song.artist,
-      album: "", // Optional
+      album: "",
       artwork: artworkUrl
         ? [{ src: artworkUrl, sizes: "512x512", type: "image/png" }]
         : [],
     });
-
     navigator.mediaSession.setActionHandler("play", playMusic);
     navigator.mediaSession.setActionHandler("pause", pauseMusic);
     navigator.mediaSession.setActionHandler("previoustrack", () =>
@@ -1490,7 +1494,6 @@ function updateMediaSession(song) {
   document.addEventListener("keydown", async (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === "o") {
       e.preventDefault();
-      // keep the magical burst for flair
       const x = e.clientX || window.innerWidth / 2;
       const y = e.clientY || window.innerHeight / 2;
       magicalBurst(x, y);
@@ -1517,7 +1520,7 @@ function updateMediaSession(song) {
           translateX: Math.cos(angle) * radius,
           translateY: Math.sin(angle) * radius,
           opacity: [1, 0],
-          scale: [1.4, 0.2],
+          scale: () => anime.random(1, 2),
           duration: 1300 + Math.random() * 500,
           easing: "easeOutExpo",
           complete: () => particle.remove(),
@@ -1530,7 +1533,6 @@ function updateMediaSession(song) {
         duration: 2400,
         easing: "easeInOutQuad",
       });
-
       await new Promise((res) => setTimeout(res, QUERY_MODAL_OPEN_DELAY));
       burst.classList.add("hidden");
       label.classList.add("hidden");
@@ -1567,10 +1569,13 @@ function magicalBurst(x, y) {
   });
 }
 
+// ====================== EASTER EGG PACK ======================
+
+// --- Magical Rain Mode ---
 const rainVideos = ["videos/rain1.mp4", "videos/rain2.mp4", "videos/rain3.mp4"];
 
 let originalBodyBackground = ""; 
-let currentRainVideoElement = null;
+let currentRainVideoElement = null; 
 
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.key.toLowerCase() === "k") {
@@ -1579,17 +1584,13 @@ document.addEventListener("keydown", function (e) {
       document.documentElement.classList.contains("rain-mode");
 
     if (isRainActive) {
-      // Store the original background before changing it
       originalBodyBackground = document.body.style.background;
-
-      // Select a random rain video
       const randomVideo =
         rainVideos[Math.floor(Math.random() * rainVideos.length)];
 
-      addRainVideoBackground(randomVideo); // Pass the video path
+      addRainVideoBackground(randomVideo); 
     } else {
-      removeRainVideoBackground(); // Call function to remove video background
-      // Restore the original background
+      removeRainVideoBackground(); 
       document.body.style.background = originalBodyBackground;
       currentRainVideoElement = null;
     }
@@ -1600,24 +1601,25 @@ function addRainVideoBackground(videoPath) {
   if (!document.getElementById("rain-video")) {
     const video = document.createElement("video");
     video.id = "rain-video";
-    video.src = videoPath;
+    video.src = videoPath; 
     video.autoplay = true;
     video.loop = true;
     video.muted = false;
-    video.volume = 0.3;
+    video.volume = 0.3; 
     video.style.position = "fixed";
     video.style.top = "0";
     video.style.left = "0";
     video.style.width = "100%";
     video.style.height = "100%";
     video.style.objectFit = "cover";
-    video.style.zIndex = "-1";
+    video.style.zIndex = "-1"; 
     video.style.opacity = "1";
     document.body.appendChild(video);
     currentRainVideoElement = video;
     document.body.style.background = "transparent";
   }
 }
+
 function removeRainVideoBackground() {
   const video = document.getElementById("rain-video");
   if (video) video.remove();
@@ -1666,14 +1668,11 @@ function performCompleteCleanup() {
   if (rainVideo) {
     rainVideo.remove();
   }
-
   console.log("Cleanup completed successfully");
 }
-
 window.addEventListener("beforeunload", performCompleteCleanup);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
-    // Pause audio when tab is hidden to save resources
     if (currentHowl && currentHowl.playing()) {
       currentHowl.pause();
     }
