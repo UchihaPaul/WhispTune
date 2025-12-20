@@ -1,8 +1,59 @@
 const { invoke } = window.__TAURI__.core;
+
+// --- User Settings Management ---
 let userSettings = {
   volume: 0.5,
   global_shortcuts_enabled: true,
 };
+
+// --- App Configuration Constants ---
+const CONFIG = {
+  BATCH_SIZE: 5,
+  PROGRESS_UPDATE_INTERVAL: 250,
+  LOADER_HIDE_DELAY: 300,
+  QUERY_MODAL_OPEN_DELAY: 1900,
+  LIGHTNING_CHANCE: 0.2,
+  LIGHTNING_INTERVAL: 5000,
+  SURPRISE_VIDEO_CHANCE: 0.05,
+  VIDEO_UPDATE_INTERVAL: 3600000,
+  TOAST_SHOW_DURATION: 1200,
+  BIRTHDAY_MUSIC_DELAY: 5000,
+  CONFETTI_COUNT: 50,
+  CONFETTI_DURATION: 8000,
+  DEFAULT_IMAGES: [
+    "assets/bg1.jpeg",
+    "assets/bg2.jpeg",
+    "assets/bg3.jpeg",
+    "assets/bg4.jpeg",
+  ],
+  RAIN_VIDEOS: ["videos/rain1.mp4", "videos/rain2.mp4", "videos/rain3.mp4"],
+  QUERY_MODAL_VIDEOS: [
+    "videos/query-modal_1.mp4",
+    "videos/query-modal_2.mp4",
+    "videos/query-modal_3.mp4",
+    "videos/query-modal_4.mp4",
+  ],
+  SURPRISE_VIDEOS: [
+    "videos/surprise1.mp4",
+    "videos/surprise2.mp4",
+    "videos/WhispTune_Serenity.mp4",
+  ],
+  BIRTHDAY_IMAGES: [
+    "assets/birthday1.jpg",
+    "assets/birthday2.jpg",
+    "assets/birthday3.jpg",
+    "assets/birthday4.jpg",
+    "assets/party.jpg",
+  ],
+  BIRTHDAY_LINKS: [
+    "https://music.youtube.com/watch?v=44k30sHxiv8&si=H8xEsy9xP-NhXISv",
+    "https://music.youtube.com/watch?v=JG8fTe9hamA&si=CRHkjNklCG0w7RXm",
+    "https://music.youtube.com/watch?v=GczUEJql94k&si=GDN_Irm-09DGx8f_",
+    "https://youtu.be/wSGoUSwNb44?si=VgC6VipDd3WA-ApC",
+  ],
+};
+
+// Load settings on startup
 async function loadUserSettings() {
   try {
     userSettings = await invoke("load_user_settings");
@@ -13,6 +64,8 @@ async function loadUserSettings() {
     return userSettings;
   }
 }
+
+// Save settings
 async function saveUserSettings() {
   try {
     await invoke("save_user_settings", { settings: userSettings });
@@ -28,6 +81,8 @@ function debouncedSaveSettings() {
     saveUserSettings();
   }, 500);
 }
+
+// --- DOM Element References ---
 const image = document.getElementById("cover");
 const title = document.getElementById("music-title");
 const artist = document.getElementById("music-artist");
@@ -39,8 +94,10 @@ const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 const playBtn = document.getElementById("play");
 const background = document.getElementById("bg-img");
-const loopShuffleBtn = document.getElementById("loop-shuffle-btn"); 
+const loopShuffleBtn = document.getElementById("loop-shuffle-btn");
 const shuffleBtn = document.getElementById("shuffle-btn"); 
+
+// Loader refs
 const loaderEl = document.getElementById("global-loader");
 const loaderTextEl = document.getElementById("loader-text");
 let loaderRefCount = 0;
@@ -53,32 +110,26 @@ function hideLoader() {
   loaderRefCount = Math.max(0, loaderRefCount - 1);
   if (loaderEl && loaderRefCount === 0) loaderEl.classList.add("hidden");
 }
+
+// Disable right-click context menu everywhere in the app
 window.addEventListener("contextmenu", function (e) {
   e.preventDefault();
 });
 
+// Prevent default behavior for dragover and drop events (to avoid opening files in the browser)
 window.addEventListener("dragover", (e) => e.preventDefault());
 window.addEventListener("drop", (e) => e.preventDefault());
+
+// Block unwanted keyboard shortcuts (refresh, zoom, navigation)
 window.addEventListener("keydown", function (e) {
-  if (
-    e.key === "F5" ||
-    (e.ctrlKey && e.key.toLowerCase() === "r") ||
-    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "r")
-  ) {
+  if (e.key === "F5" || (e.ctrlKey && e.key.toLowerCase() === "r")) {
     e.preventDefault();
+    return;
   }
   if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
     e.preventDefault();
+    return;
   }
-});
-window.addEventListener(
-  "wheel",
-  function (e) {
-    if (e.ctrlKey) e.preventDefault();
-  },
-  { passive: false }
-);
-window.addEventListener("keydown", function (e) {
   if (
     (e.ctrlKey && (e.key === "+" || e.key === "-" || e.key === "=")) ||
     e.key === "F11"
@@ -87,18 +138,20 @@ window.addEventListener("keydown", function (e) {
   }
 });
 
+window.addEventListener(
+  "wheel",
+  function (e) {
+    if (e.ctrlKey) e.preventDefault();
+  },
+  { passive: false }
+);
+
 (function setRandomDefaultImages() {
-  const images = [
-    "assets/bg1.jpeg",
-    "assets/bg2.jpeg",
-    "assets/bg3.jpeg",
-    "assets/bg4.jpeg",
-  ];
-  const randomIndex = Math.floor(Math.random() * images.length);
+  const randomImg = randomFromArray(CONFIG.DEFAULT_IMAGES);
   const bgImg = document.getElementById("bg-img");
   const coverImg = document.getElementById("cover");
-  if (bgImg) bgImg.src = images[randomIndex];
-  if (coverImg) coverImg.src = images[randomIndex];
+  if (bgImg) bgImg.src = randomImg;
+  if (coverImg) coverImg.src = randomImg;
 })();
 
 function setTimeBasedVideo() {
@@ -108,6 +161,7 @@ function setTimeBasedVideo() {
 
   if (videoElement) {
     let videoSrc;
+
     if (hour >= 6 && hour < 12) {
       videoSrc = "videos/morning.mp4";
     }
@@ -120,16 +174,11 @@ function setTimeBasedVideo() {
     else {
       videoSrc = "videos/night.mp4";
     }
-    if (Math.random() < 0.05) {
-      const surpriseVideos = [
-        "videos/surprise1.mp4",
-        "videos/surprise2.mp4",
-        "videos/WhispTune_Serenity.mp4",
-      ];
-      videoSrc =
-        surpriseVideos[Math.floor(Math.random() * surpriseVideos.length)];
+    if (Math.random() < CONFIG.SURPRISE_VIDEO_CHANCE) {
+      videoSrc = randomFromArray(CONFIG.SURPRISE_VIDEOS);
       console.log("🎉 Surprise video activated!", videoSrc);
     }
+
     if (videoElement.src !== videoSrc) {
       videoElement.src = videoSrc;
       const video = videoElement.parentElement;
@@ -138,7 +187,7 @@ function setTimeBasedVideo() {
   }
 }
 setTimeBasedVideo();
-setInterval(setTimeBasedVideo, 3600000);
+setInterval(setTimeBasedVideo, CONFIG.VIDEO_UPDATE_INTERVAL);
 function showBirthdayInputDialog() {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
@@ -316,6 +365,7 @@ function showBirthdayInputDialog() {
 
     document.body.appendChild(backdrop);
     document.body.appendChild(modal);
+
     const monthSelect = document.getElementById("birth-month");
     const daySelect = document.getElementById("birth-day");
     const saveBtn = document.getElementById("save-birthday-btn");
@@ -420,15 +470,7 @@ function triggerBirthdaySurprise() {
   console.log("🎉 IT'S YOUR BIRTHDAY! 🎉");
   const bgImg = document.getElementById("bg-img");
   const coverImg = document.getElementById("cover");
-  const birthdayImages = [
-    "assets/birthday1.jpg",
-    "assets/birthday2.jpg",
-    "assets/birthday3.jpg",
-    "assets/birthday4.jpg",
-    "assets/party.jpg",
-  ];
-  const randomBirthdayImg =
-    birthdayImages[Math.floor(Math.random() * birthdayImages.length)];
+  const randomBirthdayImg = randomFromArray(CONFIG.BIRTHDAY_IMAGES);
 
   if (bgImg) bgImg.src = randomBirthdayImg;
   if (coverImg && !activePlaylist[activeIndex]?.cover) {
@@ -441,7 +483,10 @@ function triggerBirthdaySurprise() {
     video.load();
   }
   createBirthdayConfetti();
+  createBirthdayPhotoFrame();
+  createBirthdayBadge();
   showBirthdayToast();
+  document.title = "🎂 Happy Birthday! - WhispTune 🎉";
   function showCustomConfirm(message) {
     return new Promise((resolve) => {
       const backdrop = document.createElement("div");
@@ -586,14 +631,7 @@ function triggerBirthdaySurprise() {
       console.log("User response:", shouldPlayBirthdayMusic);
 
       if (shouldPlayBirthdayMusic === true) {
-        const birthdayLinks = [
-          "https://music.youtube.com/watch?v=44k30sHxiv8&si=H8xEsy9xP-NhXISv",
-          "https://music.youtube.com/watch?v=JG8fTe9hamA&si=CRHkjNklCG0w7RXm",
-          "https://music.youtube.com/watch?v=GczUEJql94k&si=GDN_Irm-09DGx8f_",
-          "https://youtu.be/wSGoUSwNb44?si=VgC6VipDd3WA-ApC",
-        ];
-        const randomLink =
-          birthdayLinks[Math.floor(Math.random() * birthdayLinks.length)];
+        const randomLink = randomFromArray(CONFIG.BIRTHDAY_LINKS);
         console.log("Selected birthday link:", randomLink);
         loadPlaylist(randomLink);
         console.log("🎶 loadPlaylist() called with:", randomLink);
@@ -604,7 +642,7 @@ function triggerBirthdaySurprise() {
       console.log("Error handling user response:", error);
       console.log("❌ Error occurred. Skipping music.");
     }
-  }, 5000);
+  }, CONFIG.BIRTHDAY_MUSIC_DELAY);
   localStorage.setItem("birthdayCelebratedToday", new Date().toDateString());
 }
 
@@ -621,21 +659,7 @@ function createBirthdayConfetti() {
         z-index: 9999;
     `;
   document.body.appendChild(confettiContainer);
-
-  const confettiEmojis = [
-    "🎉",
-    "🎊",
-    "🎂",
-    "🥳",
-    "🎈",
-    "🎁",
-    "✨",
-    "🌟",
-    "💖",
-    "🦄",
-    "🍰",
-    "🎵",
-  ];
+  const confettiEmojis = ["🎉","🎊","🎂","🥳","🎈","🎁","✨","🌟","💖","🦄","🍰","🎵",];
   const colors = [
     "#ff6b6b",
     "#4ecdc4",
@@ -680,6 +704,56 @@ function createBirthdayConfetti() {
   setTimeout(() => {
     confettiContainer.remove();
   }, 8000);
+}
+
+function createBirthdayPhotoFrame() {
+  const playerImg = document.querySelector(".player-img");
+  if (!playerImg) return;
+  playerImg.classList.add("birthday-frame");
+  const sparkles = ["✨", "🌟", "💫", "⭐", "✨", "🌟"];
+  sparkles.forEach((sparkle) => {
+    const sparkleEl = document.createElement("span");
+    sparkleEl.className = "birthday-sparkle";
+    sparkleEl.textContent = sparkle;
+    playerImg.appendChild(sparkleEl);
+  });
+
+  console.log("🖼️ Birthday photo frame applied!");
+}
+
+function createBirthdayBadge() {
+  if (document.querySelector(".birthday-badge")) return;
+
+  const badge = document.createElement("div");
+  badge.className = "birthday-badge";
+  badge.innerHTML = `
+    <span class="birthday-badge-icon">🎂</span>
+    <div class="birthday-badge-text">
+      <span class="birthday-badge-title">Happy Birthday!</span>
+      <span class="birthday-badge-subtitle">It's your special day 🎉</span>
+    </div>
+    <button class="birthday-badge-close" aria-label="Close badge">✕</button>
+  `;
+  document.body.appendChild(badge);
+  const closeBtn = badge.querySelector(".birthday-badge-close");
+  closeBtn.addEventListener("click", () => {
+    badge.style.animation = "birthday-badge-exit 0.3s ease forwards";
+    setTimeout(() => badge.remove(), 300);
+  });
+
+  if (!document.getElementById("birthday-badge-exit-style")) {
+    const style = document.createElement("style");
+    style.id = "birthday-badge-exit-style";
+    style.textContent = `
+      @keyframes birthday-badge-exit {
+        0% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-20px) scale(0.8); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  console.log("🏅 Birthday badge created!");
 }
 
 function showBirthdayToast() {
@@ -741,7 +815,6 @@ function showBirthdayToast() {
   });
 }
 checkBirthdayAndSurprise();
-
 function scheduleBirthdayCheck() {
   const now = new Date();
   const tomorrow = new Date(now);
@@ -755,23 +828,39 @@ function scheduleBirthdayCheck() {
     scheduleBirthdayCheck();
   }, msUntilMidnight);
 }
+
 scheduleBirthdayCheck();
 
+// --- Unified Playlist State ---
 let activePlaylist = [];
 let activeIndex = 0;
 let songs = [];
-let currentHowl = null;
+// --- Player State Variables ---
+let currentHowl = null; 
 let isLoopOnce = false;
-let isLoop = false;
+let isLoop = false; 
 let isShuffle = false;
 let shuffledIndices = [];
 let shuffledPlaybackIndex = 0;
 let showFallbackImage = false;
-let blobUrls = [];
+let blobUrls = []; 
 let lightningInterval = null; 
-let progressRAFId = null;
+let progressRAFId = null; 
 let lastProgressUpdate = 0;
-const PROGRESS_UPDATE_INTERVAL = 250;
+let seekTargetTime = null; 
+let wasPlayingBeforeSeek = false; 
+
+// --- Helper Functions ---
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function randomFromArray(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 function cleanupBlobUrls() {
   blobUrls.forEach((url) => {
@@ -783,9 +872,11 @@ function cleanupBlobUrls() {
   });
   blobUrls = [];
 }
+
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
+
 function togglePlay() {
   if (!currentHowl) return;
 
@@ -804,6 +895,7 @@ function togglePlay() {
     }
   }
 }
+
 function playMusic() {
   if (!currentHowl && songs.length > 0) {
     loadMusic(activePlaylist[activeIndex]);
@@ -816,6 +908,7 @@ function playMusic() {
     }
   }
 }
+
 function pauseMusic() {
   if (currentHowl) {
     currentHowl.pause();
@@ -833,8 +926,10 @@ function loadMusic(song = activePlaylist[activeIndex]) {
   }
 
   const isOnline = song.stream_url !== undefined;
+
   const songTitle = isOnline ? song.title : song.displayName;
   const songArtist = song.artist || "Unknown Artist";
+
   title.textContent = songTitle;
   artist.textContent = songArtist;
 
@@ -875,11 +970,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
       highlightCurrentSong();
     },
     onload: () => {
-      const duration = currentHowl.duration();
-      const formatTime = (time) => String(Math.floor(time)).padStart(2, "0");
-      durationEl.textContent = `${formatTime(duration / 60)}:${formatTime(
-        duration % 60
-      )}`;
+      durationEl.textContent = formatTime(currentHowl.duration());
     },
     onend: () => {
       if (isLoopOnce) {
@@ -891,23 +982,35 @@ function loadMusic(song = activePlaylist[activeIndex]) {
       const isLastSong = isShuffle
         ? shuffledPlaybackIndex >= shuffledIndices.length - 1
         : activeIndex >= activePlaylist.length - 1;
+
       if (!isLastSong) {
         changeMusic(1);
       } else if (isLoop) {
-        changeMusic(1);
+        changeMusic(1); 
       } else {
         pauseMusic();
         playBtn.src = "icons/play.svg";
       }
     },
+    onseek: () => {
+      if (
+        (wasPlayingBeforeSeek || currentHowl.playing()) &&
+        progressRAFId === null
+      ) {
+        progressRAFId = requestAnimationFrame(updateProgressBar);
+      }
+      wasPlayingBeforeSeek = false;
+    },
   });
 }
+
 function setRandomAssetImage() {
   const randomImageNumber = Math.floor(Math.random() * 18) + 1; 
-  const randomImage = `assets/image${randomImageNumber}.jpg`;
+  const randomImage = `assets/image${randomImageNumber}.jpg`; 
   image.src = randomImage;
   background.src = randomImage;
 }
+
 function changeMusic(direction) {
   if (activePlaylist.length === 0) {
     console.warn("No songs loaded to change music.");
@@ -928,6 +1031,7 @@ function changeMusic(direction) {
   playMusic();
   highlightCurrentSong();
 }
+
 function updateProgressBar() {
   if (!currentHowl) return;
 
@@ -937,25 +1041,22 @@ function updateProgressBar() {
     return;
   }
 
-  const currentTime = currentHowl.seek() || 0;
+  let currentTime;
+  if (seekTargetTime !== null) {
+    currentTime = seekTargetTime;
+    seekTargetTime = null;
+  } else {
+    currentTime = currentHowl.seek() || 0;
+  }
   const now = performance.now();
 
-  if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL) {
+  if (now - lastProgressUpdate >= CONFIG.PROGRESS_UPDATE_INTERVAL) {
     lastProgressUpdate = now;
     const progressPercent = (currentTime / duration) * 100;
     progress.style.width = `${progressPercent}%`;
 
-    const minsCurrent = Math.floor(currentTime / 60);
-    const secsCurrent = Math.floor(currentTime % 60);
-    const minsTotal = Math.floor(duration / 60);
-    const secsTotal = Math.floor(duration % 60);
-
-    currentTimeEl.textContent = `${minsCurrent}:${secsCurrent
-      .toString()
-      .padStart(2, "0")}`;
-    durationEl.textContent = `${minsTotal}:${secsTotal
-      .toString()
-      .padStart(2, "0")}`;
+    currentTimeEl.textContent = formatTime(currentTime);
+    durationEl.textContent = formatTime(duration);
   }
   if (currentHowl.playing()) {
     progressRAFId = requestAnimationFrame(updateProgressBar);
@@ -963,14 +1064,22 @@ function updateProgressBar() {
     progressRAFId = null;
   }
 }
+
 function setProgressBar(e) {
   if (!currentHowl) return;
-
   const width = playerProgress.clientWidth;
-  const clickX = e.offsetX;
+  const clickX = e.offsetX; 
   const duration = currentHowl.duration();
-  currentHowl.seek((clickX / width) * duration);
+  const newTime = (clickX / width) * duration;
+  wasPlayingBeforeSeek = currentHowl.playing();
+  currentHowl.seek(newTime); 
+  seekTargetTime = newTime;
+  const progressPercent = (newTime / duration) * 100;
+  progress.style.width = `${progressPercent}%`;
+  currentTimeEl.textContent = formatTime(newTime);
+  lastProgressUpdate = 0;
 }
+
 function resetShuffleState() {
   if (isShuffle) {
     isShuffle = false;
@@ -979,6 +1088,7 @@ function resetShuffleState() {
     shuffledPlaybackIndex = 0;
   }
 }
+
 function finalizeSongLoad() {
   songs.sort((a, b) => a.displayName.localeCompare(b.displayName));
   resetShuffleState();
@@ -994,6 +1104,7 @@ function finalizeSongLoad() {
     alert("No supported audio files found after processing.");
   }
 }
+
 function updateSongList() {
   const songListEl = document.getElementById("song-list");
   if (!songListEl) {
@@ -1008,7 +1119,7 @@ function updateSongList() {
     li.style.cursor = "pointer";
     li.style.padding = "5px";
     li.classList.toggle("active", index === activeIndex);
-    li.dataset.index = index;
+    li.dataset.index = index; 
 
     li.addEventListener("click", () => {
       activeIndex = index;
@@ -1021,6 +1132,7 @@ function updateSongList() {
   });
   console.log("Song list updated:", songListEl.children.length, "items");
 }
+
 function highlightCurrentSong() {
   const songListEl = document.getElementById("song-list");
   if (!songListEl) return;
@@ -1028,6 +1140,7 @@ function highlightCurrentSong() {
     li.classList.toggle("active", index === activeIndex);
   });
 }
+
 document.getElementById("menu-toggle").addEventListener("change", function () {
   const songListEl = document.getElementById("song-list");
   if (songListEl) {
@@ -1040,6 +1153,7 @@ document.getElementById("menu-toggle").addEventListener("change", function () {
     }
   }
 });
+
 function updateAlbumArt() {
   const song = activePlaylist[activeIndex];
   if (showFallbackImage || !song || !song.cover) {
@@ -1053,14 +1167,15 @@ function updateAlbumArt() {
     background.src = song.cover;
   }
 }
+
 function toggleLoopMode() {
   if (!isLoopOnce && !isLoop) {
-    isLoop = true;
+    isLoop = true; 
     isLoopOnce = false;
-    updateLoopButton("repeat.svg", false);
+    updateLoopButton("repeat.svg", false); 
   } else if (isLoop) {
     isLoop = false;
-    isLoopOnce = true;
+    isLoopOnce = true; 
     updateLoopButton("repeat-1.svg", false);
   } else if (isLoopOnce) {
     isLoop = false;
@@ -1076,6 +1191,7 @@ function toggleLoopMode() {
   const y = rect.top - containerRect.top + rect.height / 2;
   loopShuffleBurst(x, y);
 }
+
 function updateLoopButton(iconPath) {
   const icon = document.getElementById("loop-icon");
   if (icon) {
@@ -1091,6 +1207,8 @@ function updateShuffleButton(iconPath) {
     icon.classList.add("active");
   }
 }
+
+// Toggle Shuffle Mode
 function toggleShuffle() {
   isShuffle = !isShuffle;
   updateShuffleButton(
@@ -1106,8 +1224,9 @@ function toggleShuffle() {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
+
     shuffledIndices = [currentSongIndex, ...indices];
-    shuffledPlaybackIndex = 0;
+    shuffledPlaybackIndex = 0; 
   } else {
     shuffledIndices = [];
   }
@@ -1155,6 +1274,9 @@ function loopShuffleBurst(centerX, centerY) {
 
   setTimeout(() => burstContainer.classList.add("hidden"), 1000);
 }
+
+// --- Tauri-Specific File Loading Logic ---
+
 async function loadSongsFromFolderTauri() {
   console.log("Attempting to load songs from folder via Tauri...");
   showLoader("Importing songs…");
@@ -1175,12 +1297,12 @@ async function loadSongsFromFolderTauri() {
     }
 
     console.log("Received file paths from Rust:", filePaths);
+
     songs = [];
     let processed = 0;
-    const BATCH_SIZE = 5;
 
-    for (let i = 0; i < filePaths.length; i += BATCH_SIZE) {
-      const batch = filePaths.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < filePaths.length; i += CONFIG.BATCH_SIZE) {
+      const batch = filePaths.slice(i, i + CONFIG.BATCH_SIZE);
 
       await Promise.all(
         batch.map(async (filePathData) => {
@@ -1256,6 +1378,8 @@ async function loadSongsFromFolderTauri() {
     hideLoader();
   }
 }
+
+// Online playlist loader (unified)
 async function loadPlaylist(query) {
   showLoader("Fetching tracks…");
   try {
@@ -1263,10 +1387,13 @@ async function loadPlaylist(query) {
     const result = await invoke("search_playlist_and_stream", {
       songName: query,
     });
+
     activePlaylist = result;
     songs = result;
     activeIndex = 0;
+
     updateSongList();
+
     if (activePlaylist.length > 0 && activePlaylist[activeIndex]) {
       loadMusic(activePlaylist[activeIndex]);
       playMusic();
@@ -1282,14 +1409,18 @@ async function loadPlaylist(query) {
   }
 }
 
+// --- Event Listeners ---
+
 playBtn.addEventListener("click", togglePlay);
 prevBtn.addEventListener("click", () => changeMusic(-1));
 nextBtn.addEventListener("click", () => changeMusic(1));
 playerProgress.addEventListener("click", setProgressBar);
+document
+  .getElementById("add-folder-btn")
+  .addEventListener("click", loadSongsFromFolderTauri);
 
-document.getElementById("add-folder-btn").addEventListener("click", loadSongsFromFolderTauri);
 shuffleBtn.addEventListener("click", toggleShuffle);
-loopShuffleBtn.addEventListener("click", toggleLoopMode); 
+loopShuffleBtn.addEventListener("click", toggleLoopMode);
 function showVolumeToast(volume) {
   const toast = document.getElementById("volume-toast");
   const icon = toast.querySelector("img");
@@ -1307,6 +1438,7 @@ function showVolumeToast(volume) {
       icon.alt = "High Volume";
     }
     bar.style.width = `${Math.round(volume * 100)}%`;
+
     toast.style.display = "flex";
     if (toast._anime) toast._anime.pause();
     toast._anime = anime({
@@ -1322,6 +1454,7 @@ function showVolumeToast(volume) {
         toast.style.transform = "translate(-50%, 60px) scale(0.98)";
       },
     });
+
     clearTimeout(toast._timeout);
     toast._timeout = setTimeout(() => {
       if (toast._anime) toast._anime.pause();
@@ -1341,6 +1474,7 @@ function showVolumeToast(volume) {
   }
 }
 
+// Keyboard controls
 document.addEventListener("keydown", (e) => {
   const ae = document.activeElement;
   const isTyping =
@@ -1383,7 +1517,7 @@ document.addEventListener("keydown", (e) => {
       currentHowl.volume(newVol);
       userSettings.volume = newVol;
       debouncedSaveSettings();
-      showVolumeToast(newVol); 
+      showVolumeToast(newVol);
     }
   } else if (e.key === "f" || e.key === "F") {
     showFallbackImage = !showFallbackImage;
@@ -1402,6 +1536,7 @@ function updateMediaSession(song) {
         ? [{ src: artworkUrl, sizes: "512x512", type: "image/png" }]
         : [],
     });
+
     navigator.mediaSession.setActionHandler("play", playMusic);
     navigator.mediaSession.setActionHandler("pause", pauseMusic);
     navigator.mediaSession.setActionHandler("previoustrack", () =>
@@ -1411,22 +1546,16 @@ function updateMediaSession(song) {
   }
 }
 
+// Online mode Codes
 (function initQueryModal() {
   const modal = document.getElementById("query-modal");
   const input = document.getElementById("query-input");
   const btnOk = document.getElementById("query-ok");
   const btnCancel = document.getElementById("query-cancel");
   const bgVideo = modal ? modal.querySelector("video") : null;
-  const queryModalVideos = [
-    "videos/query-modal_1.mp4",
-    "videos/query-modal_2.mp4",
-    "videos/query-modal_3.mp4",
-    "videos/query-modal_4.mp4",
-  ];
+
   function pickRandomQueryVideo() {
-    return queryModalVideos[
-      Math.floor(Math.random() * queryModalVideos.length)
-    ];
+    return randomFromArray(CONFIG.QUERY_MODAL_VIDEOS);
   }
 
   function openModal(prefill = "") {
@@ -1489,8 +1618,6 @@ function updateMediaSession(song) {
       }
     });
 
-  const QUERY_MODAL_OPEN_DELAY = 1900;
-
   document.addEventListener("keydown", async (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === "o") {
       e.preventDefault();
@@ -1533,7 +1660,9 @@ function updateMediaSession(song) {
         duration: 2400,
         easing: "easeInOutQuad",
       });
-      await new Promise((res) => setTimeout(res, QUERY_MODAL_OPEN_DELAY));
+      await new Promise((res) =>
+        setTimeout(res, CONFIG.QUERY_MODAL_OPEN_DELAY)
+      );
       burst.classList.add("hidden");
       label.classList.add("hidden");
       openModal("");
@@ -1572,10 +1701,8 @@ function magicalBurst(x, y) {
 // ====================== EASTER EGG PACK ======================
 
 // --- Magical Rain Mode ---
-const rainVideos = ["videos/rain1.mp4", "videos/rain2.mp4", "videos/rain3.mp4"];
 
-let originalBodyBackground = ""; 
-let currentRainVideoElement = null; 
+let originalBodyBackground = "";
 
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.key.toLowerCase() === "k") {
@@ -1585,14 +1712,11 @@ document.addEventListener("keydown", function (e) {
 
     if (isRainActive) {
       originalBodyBackground = document.body.style.background;
-      const randomVideo =
-        rainVideos[Math.floor(Math.random() * rainVideos.length)];
-
-      addRainVideoBackground(randomVideo); 
+      const randomVideo = randomFromArray(CONFIG.RAIN_VIDEOS);
+      addRainVideoBackground(randomVideo);
     } else {
-      removeRainVideoBackground(); 
+      removeRainVideoBackground();
       document.body.style.background = originalBodyBackground;
-      currentRainVideoElement = null;
     }
   }
 });
@@ -1601,25 +1725,23 @@ function addRainVideoBackground(videoPath) {
   if (!document.getElementById("rain-video")) {
     const video = document.createElement("video");
     video.id = "rain-video";
-    video.src = videoPath; 
+    video.src = videoPath;
     video.autoplay = true;
     video.loop = true;
     video.muted = false;
-    video.volume = 0.3; 
+    video.volume = 0.3;
     video.style.position = "fixed";
     video.style.top = "0";
     video.style.left = "0";
     video.style.width = "100%";
     video.style.height = "100%";
     video.style.objectFit = "cover";
-    video.style.zIndex = "-1"; 
+    video.style.zIndex = "-1";
     video.style.opacity = "1";
     document.body.appendChild(video);
-    currentRainVideoElement = video;
     document.body.style.background = "transparent";
   }
 }
-
 function removeRainVideoBackground() {
   const video = document.getElementById("rain-video");
   if (video) video.remove();
@@ -1643,6 +1765,9 @@ function initializeLightningInterval() {
   }, 5000);
 }
 initializeLightningInterval();
+
+// --- Comprehensive Cleanup Functions ---
+
 function performCompleteCleanup() {
   console.log("Performing complete cleanup to prevent memory leaks...");
   cleanupBlobUrls();
@@ -1650,37 +1775,38 @@ function performCompleteCleanup() {
     currentHowl.unload();
     currentHowl = null;
   }
-  if (rainAudio) {
-    rainAudio.pause();
-    rainAudio.src = "";
-    rainAudio.load();
-    rainAudio = null;
+  const rainVideo = document.getElementById("rain-video");
+  if (rainVideo) {
+    rainVideo.pause();
+    rainVideo.remove();
   }
+
   if (lightningInterval) {
     clearInterval(lightningInterval);
     lightningInterval = null;
   }
+
   const toast = document.getElementById("volume-toast");
   if (toast && toast._timeout) {
     clearTimeout(toast._timeout);
   }
-  const rainVideo = document.getElementById("rain-video");
-  if (rainVideo) {
-    rainVideo.remove();
-  }
+
   console.log("Cleanup completed successfully");
 }
+
 window.addEventListener("beforeunload", performCompleteCleanup);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     if (currentHowl && currentHowl.playing()) {
       currentHowl.pause();
     }
-    if (rainAudio && !rainAudio.paused) {
-      rainAudio.pause();
+    const rainVideo = document.getElementById("rain-video");
+    if (rainVideo && !rainVideo.paused) {
+      rainVideo.pause();
     }
   }
 });
+
 (async function initializeApp() {
   try {
     await loadUserSettings();
