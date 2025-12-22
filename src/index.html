@@ -60,7 +60,7 @@
       <div class="song-list-container">
         <ul id="song-list"></ul>
       </div>
-      <div id="secret-burst" class="hidden"></div> 
+      <div id="secret-burst" class="hidden"></div>
       <div id="secret-label" class="hidden">
         ✨ Whispering Gateway Activated
       </div>
@@ -109,20 +109,22 @@
       aria-modal="true"
       role="dialog"
     >
-      <video class="query-modal-video" autoplay muted loop playsinline>
-        <source src="videos/special.mp4" type="video/mp4" />
-      </video>
       <div class="query-modal-content">
-        <div class="query-modal-title">What would you like to play?</div>
-        <input
-          id="query-input"
-          class="query-modal-input"
-          type="text"
-          placeholder="Search or paste a link (YouTube Music)"
-        />
-        <div class="query-modal-actions">
-          <button id="query-cancel" class="btn-modal ghost">Cancel</button>
-          <button id="query-ok" class="btn-modal primary">Play</button>
+        <video class="query-modal-video" autoplay muted loop playsinline>
+          <source src="videos/special.mp4" type="video/mp4" />
+        </video>
+        <div class="query-modal-inner">
+          <div class="query-modal-title">What would you like to play?</div>
+          <input
+            id="query-input"
+            class="query-modal-input"
+            type="text"
+            placeholder="Search or paste a link (YouTube Music)"
+          />
+          <div class="query-modal-actions">
+            <button id="query-cancel" class="btn-modal ghost">Cancel</button>
+            <button id="query-ok" class="btn-modal primary">Play</button>
+          </div>
         </div>
       </div>
     </div>
