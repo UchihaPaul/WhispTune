@@ -17,7 +17,6 @@ const CONFIG = {
   SURPRISE_VIDEO_CHANCE: 0.05,
   VIDEO_UPDATE_INTERVAL: 3600000,
   TOAST_SHOW_DURATION: 1200,
-  BIRTHDAY_MUSIC_DELAY: 5000,
   CONFETTI_COUNT: 50,
   CONFETTI_DURATION: 8000,
   DEFAULT_IMAGES: [
@@ -44,12 +43,6 @@ const CONFIG = {
     "assets/birthday3.jpg",
     "assets/birthday4.jpg",
     "assets/party.jpg",
-  ],
-  BIRTHDAY_LINKS: [
-    "https://music.youtube.com/watch?v=44k30sHxiv8&si=H8xEsy9xP-NhXISv",
-    "https://music.youtube.com/watch?v=JG8fTe9hamA&si=CRHkjNklCG0w7RXm",
-    "https://music.youtube.com/watch?v=GczUEJql94k&si=GDN_Irm-09DGx8f_",
-    "https://youtu.be/wSGoUSwNb44?si=VgC6VipDd3WA-ApC",
   ],
 };
 
@@ -1659,4 +1652,5 @@ document.addEventListener("visibilitychange", () => {
     console.error("Failed to initialize app:", error);
   }
 })();
+
 
