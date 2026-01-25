@@ -1,10 +1,41 @@
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════════╗
+ * ║                              WhispTune Music Player                          ║
+ * ║                                                                              ║
+ * ║  A beautiful, feature-rich music player built with Tauri + JavaScript        ║
+ * ║                                                                              ║
+ * ║  Features:                                                                   ║
+ * ║  - Local audio file playback (MP3, WAV, OGG, FLAC, M4A)                     ║
+ * ║  - Online streaming via YouTube (yt-dlp)                                    ║
+ * ║  - Shuffle, Loop, and Repeat modes                                          ║
+ * ║  - Dynamic time-based themes and backgrounds                                 ║
+ * ║  - Birthday celebration mode                                                 ║
+ * ║  - Rain ambiance mode (Ctrl+K)                                              ║
+ * ║  - Media Session API integration                                            ║
+ * ║  - Keyboard shortcuts for playback control                                  ║
+ * ║                                                                              ║
+ * ║  Author: UchihaPaul                                                          ║
+ * ║  Repository: https://github.com/UchihaPaul/WhispTune                        ║
+ * ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAURI BRIDGE - Communication with Rust backend
+// ─────────────────────────────────────────────────────────────────────────────
 const { invoke } = window.__TAURI__.core;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// USER SETTINGS - Persistent configuration stored via Tauri
+// ─────────────────────────────────────────────────────────────────────────────
 let userSettings = {
   volume: 0.5,
   global_shortcuts_enabled: true,
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// APPLICATION CONFIGURATION - Timing, assets, and behavior constants
+// Modify these values to customize app behavior without changing logic
+// ─────────────────────────────────────────────────────────────────────────────
 const CONFIG = {
   BATCH_SIZE: 5,
   PROGRESS_UPDATE_INTERVAL: 250,
@@ -44,6 +75,16 @@ const CONFIG = {
   ],
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SETTINGS PERSISTENCE - Load/Save user preferences via Tauri backend
+// Settings are stored in the app's data directory as JSON
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Loads user settings from persistent storage
+ * Falls back to default settings on error
+ * @returns {Promise<Object>} User settings object
+ */
 async function loadUserSettings() {
   try {
     userSettings = await invoke("load_user_settings");
@@ -72,6 +113,12 @@ function debouncedSaveSettings() {
   }, 500);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// DOM ELEMENT REFERENCES - Cached for performance
+// These are the main UI elements controlled by the player
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Player display elements
 const image = document.getElementById("cover");
 const title = document.getElementById("music-title");
 const artist = document.getElementById("music-artist");
@@ -86,6 +133,10 @@ const background = document.getElementById("bg-img");
 const loopShuffleBtn = document.getElementById("loop-shuffle-btn");
 const shuffleBtn = document.getElementById("shuffle-btn");
 
+// ─────────────────────────────────────────────────────────────────────────────
+// LOADER MANAGEMENT - Global loading overlay with reference counting
+// Uses ref counting to handle nested async operations gracefully
+// ─────────────────────────────────────────────────────────────────────────────
 const loaderEl = document.getElementById("global-loader");
 const loaderTextEl = document.getElementById("loader-text");
 let loaderRefCount = 0;
@@ -99,6 +150,12 @@ function hideLoader() {
   if (loaderEl && loaderRefCount === 0) loaderEl.classList.add("hidden");
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SECURITY & UX PROTECTION - Disable unwanted browser behaviors
+// Prevents accidental navigation, zoom, and context menus for app-like feel
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Disable right-click context menu
 window.addEventListener("contextmenu", function (e) {
   e.preventDefault();
 });
@@ -139,6 +196,16 @@ window.addEventListener(
   if (coverImg) coverImg.src = randomImg;
 })();
 
+// ─────────────────────────────────────────────────────────────────────────────
+// TIME-BASED THEMING - Dynamic video backgrounds based on time of day
+// Changes the "Add Music" button background video to match the mood
+// Morning (6-12), Afternoon (12-15), Evening (15-18), Night (18-6)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Sets the background video based on current time of day
+ * Also has a small chance to show a surprise video
+ */
 function setTimeBasedVideo() {
   const now = new Date();
   const hour = now.getHours();
@@ -172,6 +239,18 @@ function setTimeBasedVideo() {
 setTimeBasedVideo();
 setInterval(setTimeBasedVideo, CONFIG.VIDEO_UPDATE_INTERVAL);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// BIRTHDAY CELEBRATION SYSTEM
+// Asks for user's birthday on first launch, then celebrates annually
+// Features: Confetti, special badges, themed backgrounds, and toast messages
+// Trigger manually with Ctrl+Shift+B for testing
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Displays a modal dialog to collect user's birthday
+ * Birthday is stored in localStorage for annual celebration
+ * @returns {Promise<string|null>} Birthday string in 'M-D' format or null if cancelled
+ */
 function showBirthdayInputDialog() {
   return new Promise((resolve) => {
     const backdrop = document.createElement("div");
@@ -497,20 +576,7 @@ function createBirthdayConfetti() {
     `;
   document.body.appendChild(confettiContainer);
 
-  const confettiEmojis = [
-    "🎉",
-    "🎊",
-    "🎂",
-    "🥳",
-    "🎈",
-    "🎁",
-    "✨",
-    "🌟",
-    "💖",
-    "🦄",
-    "🍰",
-    "🎵",
-  ];
+  const confettiEmojis = ["🎉", "🎊", "🎂", "🥳", "🎈", "🎁", "✨", "🌟", "💖", "🦄", "🍰", "🎵",];
   const colors = [
     "#ff6b6b",
     "#4ecdc4",
@@ -691,11 +757,18 @@ function scheduleBirthdayCheck() {
 
 scheduleBirthdayCheck();
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PLAYER STATE MANAGEMENT
+// Core state variables for audio playback, playlist management, and UI state
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Playlist and track state
 let activePlaylist = [];
 let activeIndex = 0;
-let songs = [];
+let songs = [];                      // Raw loaded songs array
 
-let currentHowl = null;
+// Howler.js audio instance and playback modes
+let currentHowl = null;              // Current Howler.js audio instance
 let isLoopOnce = false;
 let isLoop = false;
 let isShuffle = false;
@@ -707,8 +780,17 @@ let lightningInterval = null;
 let progressRAFId = null;
 let lastProgressUpdate = 0;
 let seekTargetTime = null;
-let wasPlayingBeforeSeek = false;
+let wasPlayingBeforeSeek = false;    // Track play state during seeking
 
+// ─────────────────────────────────────────────────────────────────────────────
+// UTILITY FUNCTIONS - Helper functions used throughout the application
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Formats seconds into MM:SS display format
+ * @param {number} seconds - Time in seconds
+ * @returns {string} Formatted time string
+ */
 function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
@@ -734,6 +816,15 @@ function capitalizeWords(str) {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PLAYBACK CONTROLS - Core audio control functions
+// Manages play, pause, skip, and track loading via Howler.js
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Toggles between play and pause states
+ * Updates the play button icon accordingly
+ */
 function togglePlay() {
   if (!currentHowl) return;
 
@@ -777,6 +868,12 @@ function pauseMusic() {
   }
 }
 
+/**
+ * Loads and prepares a song for playback
+ * Handles both local files and online streams
+ * Sets up Howler.js instance with all necessary callbacks
+ * @param {Object} song - Song object with path/stream_url and metadata
+ */
 function loadMusic(song = activePlaylist[activeIndex]) {
   if (!song) {
     console.warn("loadMusic called with undefined song");
@@ -873,6 +970,11 @@ function setRandomAssetImage() {
   background.src = randomImage;
 }
 
+/**
+ * Navigates to the next or previous track
+ * Respects shuffle mode when enabled
+ * @param {number} direction - 1 for next, -1 for previous
+ */
 function changeMusic(direction) {
   if (activePlaylist.length === 0) {
     console.warn("No songs loaded to change music.");
@@ -894,6 +996,16 @@ function changeMusic(direction) {
   highlightCurrentSong();
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// PROGRESS BAR - Visual playback progress and seeking
+// Uses requestAnimationFrame for smooth updates
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Updates the progress bar position and time display
+ * Called via requestAnimationFrame for smooth animation
+ * Throttled by CONFIG.PROGRESS_UPDATE_INTERVAL for performance
+ */
 function updateProgressBar() {
   if (!currentHowl) return;
 
@@ -947,6 +1059,12 @@ function setProgressBar(e) {
   lastProgressUpdate = 0;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SONG LIST MANAGEMENT - Playlist display and interaction
+// Handles the expandable song list UI and track selection
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Resets shuffle state when loading new songs */
 function resetShuffleState() {
   if (isShuffle) {
     isShuffle = false;
@@ -1108,19 +1226,7 @@ function toggleShuffle() {
 updateShuffleButton("shuffle-disabled.svg", false);
 
 function loopShuffleBurst(centerX, centerY) {
-  const glyphs = [
-    "🦁",
-    "🌲",
-    "❄️",
-    "🕯️",
-    "✨",
-    "🍃",
-    "🌌",
-    "⛅",
-    "🌀",
-    "🦢",
-    "🎶",
-  ];
+  const glyphs = ["🦁", "🌲", "❄️", "🕯️", "✨", "🍃", "🌌", "⛅", "🌀", "🦢", "🎶",];
   const burstContainer = document.getElementById("loop-burst");
   burstContainer.innerHTML = "";
   burstContainer.classList.remove("hidden");
@@ -1151,6 +1257,17 @@ function loopShuffleBurst(centerX, centerY) {
   setTimeout(() => burstContainer.classList.add("hidden"), 1000);
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE LOADING - Import local audio files via Tauri
+// Uses jsmediatags for ID3 metadata extraction
+// Processes files in batches for better UX
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Opens folder picker and loads all supported audio files
+ * Extracts metadata (title, artist, cover art) from ID3 tags
+ * Files are processed in batches defined by CONFIG.BATCH_SIZE
+ */
 async function loadSongsFromFolderTauri() {
   showLoader("Importing songs…");
   try {
@@ -1250,6 +1367,16 @@ async function loadSongsFromFolderTauri() {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ONLINE STREAMING - YouTube search and playlist loading via yt-dlp
+// Supports: Single video URLs, playlist URLs, and search queries
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Searches YouTube or loads a playlist URL
+ * Uses yt-dlp backend command for stream extraction
+ * @param {string} query - Search term or YouTube URL
+ */
 async function loadPlaylist(query) {
   showLoader("Fetching tracks…");
   try {
@@ -1277,6 +1404,11 @@ async function loadPlaylist(query) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENT LISTENERS - UI interaction handlers
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Playback control buttons
 playBtn.addEventListener("click", togglePlay);
 prevBtn.addEventListener("click", () => changeMusic(-1));
 nextBtn.addEventListener("click", () => changeMusic(1));
@@ -1289,6 +1421,15 @@ document
 shuffleBtn.addEventListener("click", toggleShuffle);
 loopShuffleBtn.addEventListener("click", toggleLoopMode);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// VOLUME TOAST - Visual feedback for volume changes
+// Shows animated toast with volume icon and level bar
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Displays volume change toast notification
+ * @param {number} volume - Volume level (0.0 to 1.0)
+ */
 function showVolumeToast(volume) {
   const toast = document.getElementById("volume-toast");
   const icon = toast.querySelector("img");
@@ -1345,6 +1486,11 @@ function showVolumeToast(volume) {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// KEYBOARD SHORTCUTS - Global hotkey handling
+// Space: Play/Pause | Arrows: Skip/Volume | F: Toggle Fallback Image
+// Ctrl+Shift+B: Trigger birthday (testing)
+// ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener("keydown", (e) => {
   const ae = document.activeElement;
   const isTyping =
@@ -1398,6 +1544,16 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MEDIA SESSION API - System media controls integration
+// Enables OS-level controls (media keys, notification controls)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Updates the Media Session API with current track info
+ * Enables system media controls and lock screen display
+ * @param {Object} song - Current song object
+ */
 function updateMediaSession(song) {
   if ("mediaSession" in navigator && song) {
     let artworkUrl = song.cover || song.thumbnail || "";
@@ -1573,6 +1729,13 @@ function magicalBurst(x, y) {
 
 let originalBodyBackground = "";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// RAIN MODE - Ambient rain effect (Ctrl+K to toggle)
+// Adds video rain background with occasional lightning flashes
+// Creates a cozy, atmospheric listening experience
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Rain mode toggle (Ctrl+K)
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.key.toLowerCase() === "k") {
     document.documentElement.classList.toggle("rain-mode");
@@ -1637,6 +1800,15 @@ function initializeLightningInterval() {
 
 initializeLightningInterval();
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CLEANUP & LIFECYCLE - Resource management and app lifecycle
+// Properly releases memory and stops processes on app close
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Performs complete cleanup of all resources
+ * Called before page unload to prevent memory leaks
+ */
 function performCompleteCleanup() {
   cleanupBlobUrls();
 
@@ -1676,6 +1848,14 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// APPLICATION INITIALIZATION - Startup sequence
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Main application entry point
+ * Loads user settings and initializes the player
+ */
 (async function initializeApp() {
   try {
     await loadUserSettings();

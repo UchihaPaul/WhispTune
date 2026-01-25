@@ -1,3 +1,24 @@
+/**
+ * ╔══════════════════════════════════════════════════════════════════════════════╗
+ * ║                         WhispTune - Stylesheet                               ║
+ * ║                                                                              ║
+ * ║  A glassmorphic, elegant design with smooth animations                       ║
+ * ║                                                                              ║
+ * ║  Design Features:                                                            ║
+ * ║  - Glassmorphism with backdrop-filter blur effects                          ║
+ * ║  - CSS custom properties for easy theming                                   ║
+ * ║  - Smooth transitions and micro-interactions                                ║
+ * ║  - Custom scrollbar styling                                                 ║
+ * ║  - Responsive design considerations                                          ║
+ * ║  - Reduced motion support for accessibility                                 ║
+ * ╚══════════════════════════════════════════════════════════════════════════════╝
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FONTS - Custom typography
+   Using Poppins for headings and Ubuntu for body text
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 @font-face {
   font-family: "Poppins";
   src: url("fonts/Poppins-Black.woff2") format("woff2"),
@@ -20,7 +41,14 @@ body {
   height: 100%;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES (Variables)
+   Central theme configuration - modify these to change the entire app's look
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 :root {
+  /* Scrollbar theming */
+  
   --sb-size: 10px;
   --sb-track: transparent;
   --sb-thumb-start: #9dbeb9;
@@ -67,6 +95,11 @@ body {
   --song-item-glow: 0 0 20px rgba(157, 190, 185, 0.25);
   --song-item-glow-active: 0 0 30px rgba(157, 190, 185, 0.4);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BASE STYLES - Reset and foundational styles
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 body,
 * {
   user-select: none;
@@ -86,6 +119,11 @@ body {
   background-color: #f5f5f5;
   background: transparent;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BACKGROUND - Blurred album art background
+   Creates depth and visual interest behind the player
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 .background {
   position: fixed;
@@ -109,6 +147,11 @@ body {
   transform: scale(1.05);
   opacity: 1;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MAIN CONTAINER - The glassmorphic player card
+   Features: Frosted glass effect, subtle breathing animation, hover lift
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 .container {
   background: var(--glass-bg);
@@ -144,6 +187,11 @@ body {
 .container {
   animation: containerBreath 4s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ALBUM ART - Cover image display with hover effects
+   Features: Smooth fade transitions, zoom on hover, shadow depth
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 .player-img {
   width: 300px;
@@ -208,6 +256,11 @@ body {
   animation: fadeIn 0.5s forwards;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY - Song title and artist display
+   Features: Text shadows for readability, ellipsis overflow
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 h2 {
   font-size: 20px;
   text-align: center;
@@ -230,6 +283,11 @@ h3 {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   letter-spacing: 0.5px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PROGRESS BAR - Playback progress indicator
+   Features: Shimmer animation, draggable thumb on hover, time display
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 .player-progress {
   background: rgba(255, 255, 255, 0.3);
@@ -302,6 +360,11 @@ h3 {
   pointer-events: none;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PLAYER CONTROLS - Play, pause, skip, shuffle, loop buttons
+   Features: Hover glow effects, press animations, icon transitions
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .player-controls {
   width: 380px;
   position: relative;
@@ -330,6 +393,11 @@ h3 {
   transform: scale(0.95);
   filter: brightness(0.9);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   VIDEO BUTTON - "Add Music" button with video background
+   Features: Time-based video backgrounds, hover glow, letter-spacing animation
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 .video-button {
   position: relative;
@@ -397,6 +465,11 @@ h3 {
   z-index: 1;
   pointer-events: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MENU TOGGLE - Animated equalizer bars / X button
+   Features: Bar animation on hover, transforms to X when active
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 #menu-toggle {
   display: none;
@@ -531,6 +604,11 @@ h3 {
 #menu-toggle:checked + .toggle #bar3 {
   transform: rotate(-45deg);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SONG LIST - Expandable playlist with staggered animations
+   Features: Slide-in animation, hover states, active track highlighting
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 #song-list {
   --stagger-delay: 50ms;
@@ -789,6 +867,10 @@ h3 {
   animation-play-state: paused;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LOOP & SHUFFLE BUTTONS - Mode toggle controls
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 #loop-shuffle-btn {
   background: none;
   border: none;
@@ -855,6 +937,11 @@ h3 {
   border: none;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PARTICLE EFFECTS - Emoji burst animations
+   Used for loop/shuffle toggle feedback and secret triggers
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 #loop-burst {
   position: fixed;
   top: 50%;
@@ -915,6 +1002,11 @@ h3 {
   display: none;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RAIN MODE - Ambient rain effect styles
+   Lightning flash effect and container modifications for rain theme
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .lightning-flash {
   position: fixed;
   top: 0;
@@ -944,6 +1036,11 @@ h3 {
   border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.5s ease;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TOAST NOTIFICATIONS - Volume and feedback toasts
+   Features: Floating animation, glassmorphic design
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 .toast {
   position: fixed;
@@ -1070,6 +1167,10 @@ h3 {
   position: relative;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   GLOBAL SCROLLBAR - Custom scrollbar styling for the entire app
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 html::-webkit-scrollbar {
   width: 8px;
 }
@@ -1091,6 +1192,11 @@ html {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LOADER - Vinyl record loading animation
+   Features: Spinning vinyl disc, orbiting notes, pulsing arcs
+   ═══════════════════════════════════════════════════════════════════════════════ */
 
 .loader {
   position: fixed;
@@ -1292,6 +1398,12 @@ html {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   QUERY MODAL - Online music search dialog
+   Features: Video background, glassmorphic input, smooth animations
+   Triggered with Ctrl+O
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 .query-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1456,6 +1568,13 @@ html {
   border-color: rgba(78, 84, 200, 0.4);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BIRTHDAY CELEBRATION - Special styles for birthday mode
+   Features: Rainbow gradient frame, sparkle effects, badge, toast
+   Triggered on user's birthday or with Ctrl+Shift+B
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Rainbow animated border around album art */
 .player-img.birthday-frame::before {
   content: "";
   position: absolute;
