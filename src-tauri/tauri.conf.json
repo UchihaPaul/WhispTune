@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "WhispTune",
+  "version": "2.2.0",
+  "identifier": "com.whisptune.app.v2",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [],
+      "pubkey": ""
+    }
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "WhispTune - Where melodies drift like the wind",
+        "width": 750,
+        "height": 750
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; media-src * blob:; img-src 'self' blob: data: https://i.ytimg.com https://img.youtube.com; connect-src 'self' https:;"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "appimage", "deb"],
+    "license": "src-tauri/LICENSE.txt",
+    "licenseFile": "LICENSE.txt",
+    "publisher": "UchihaPaul",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "allowDowngrades": false,
+      "certificateThumbprint": null,
+      "digestAlgorithm": null,
+      "nsis": {
+        "displayLanguageSelector": false,
+        "languages": ["English"],
+        "installerIcon": "icons/icon.ico",
+        "installMode": "perMachine",
+        "sidebarImage": "icons/installer-sidebar.bmp"
+      },
+      "signCommand": null,
+      "timestampUrl": null,
+      "tsp": false,
+      "wix": null,
+      "webviewInstallMode": {
+        "type": "skip"
+      }
+    }
+  }
+}
