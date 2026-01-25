@@ -1,4 +1,3 @@
-/* WhispTune.css */
 @font-face {
   font-family: "Poppins";
   src: url("fonts/Poppins-Black.woff2") format("woff2"),
@@ -20,9 +19,8 @@ body {
   overflow-y: auto;
   height: 100%;
 }
-/* Scrollbar theming variables */
+
 :root {
-  /* Scrollbar - Studio Ghibli soft teal/sky palette */
   --sb-size: 10px;
   --sb-track: transparent;
   --sb-thumb-start: #9dbeb9;
@@ -34,7 +32,6 @@ body {
   --sb-thumb-shadow: 0 2px 8px rgba(122, 158, 153, 0.35);
   --sb-thumb-shadow-hover: 0 3px 12px rgba(122, 158, 153, 0.5);
 
-  /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-bg-hover: rgba(255, 255, 255, 0.08);
   --glass-bg-strong: rgba(255, 255, 255, 0.12);
@@ -43,7 +40,6 @@ body {
   --glass-blur: blur(30px);
   --glass-blur-light: blur(12px);
 
-  /* Colors - Studio Ghibli inspired (soft teal & dusty rose) */
   --accent-primary: #9dbeb9;
   --accent-secondary: #d4bfb5;
   --accent-tertiary: #b8c5d4;
@@ -52,19 +48,16 @@ body {
   --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.3);
   --shadow-strong: 0 18px 40px rgba(0, 0, 0, 0.45);
 
-  /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
   --transition-bounce: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Z-index layers */
   --z-background: -1;
   --z-content: 1;
   --z-overlay: 9999;
   --z-modal: 10010;
 
-  /* Song List - Ghibli soft teal tones */
   --song-item-bg: rgba(255, 255, 255, 0.04);
   --song-item-bg-hover: rgba(157, 190, 185, 0.15);
   --song-item-bg-active: rgba(157, 190, 185, 0.22);
@@ -78,7 +71,7 @@ body,
 * {
   user-select: none;
 }
-/* General Reset */
+
 html {
   box-sizing: border-box;
 }
@@ -93,7 +86,7 @@ body {
   background-color: #f5f5f5;
   background: transparent;
 }
-/* Blurred Background */
+
 .background {
   position: fixed;
   width: 180%;
@@ -111,12 +104,12 @@ body {
   right: 0;
   min-width: 55%;
   min-height: 55%;
-  -webkit-filter: blur(15px); /* For Safari */
+  -webkit-filter: blur(15px);
   filter: blur(15px);
   transform: scale(1.05);
   opacity: 1;
 }
-/* Music Player Container */
+
 .container {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur) saturate(200%) brightness(1.1);
@@ -143,7 +136,6 @@ body {
   transform: translateY(-4px) scale(1.01);
 }
 
-/* Subtle breathing animation for idle state */
 @keyframes containerBreath {
   0%, 100% { box-shadow: var(--shadow-soft), inset 0 0 0.5px rgba(255, 255, 255, 0.2), inset 0 -1px 2px rgba(0, 0, 0, 0.15); }
   50% { box-shadow: var(--shadow-soft), inset 0 0 0.5px rgba(255, 255, 255, 0.25), inset 0 -1px 2px rgba(0, 0, 0, 0.15), 0 0 30px rgba(157, 190, 185, 0.1); }
@@ -153,7 +145,6 @@ body {
   animation: containerBreath 4s ease-in-out infinite;
 }
 
-/* Album Cover */
 .player-img {
   width: 300px;
   height: 300px;
@@ -185,7 +176,7 @@ body {
   transition: all 0.5s;
   opacity: 1;
 }
-/* Fade Out Animation */
+
 @keyframes fadeOut {
   from {
     opacity: 1;
@@ -194,7 +185,7 @@ body {
     opacity: 0;
   }
 }
-/* Fade In Animation */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -203,18 +194,20 @@ body {
     opacity: 1;
   }
 }
-/* Apply animations to the album cover */
+
 .player-img img {
-  transition: opacity 0.5s ease; /* Smooth transition for opacity changes */
-  animation: none; /* Default state: no animation */
+  transition: opacity 0.5s ease;
+  animation: none;
 }
+
 .player-img img.fade-out {
-  animation: fadeOut 0.5s forwards; /* Apply fade-out animation */
+  animation: fadeOut 0.5s forwards;
 }
+
 .player-img img.fade-in {
-  animation: fadeIn 0.5s forwards; /* Apply fade-in animation */
+  animation: fadeIn 0.5s forwards;
 }
-/* Song Title and Artist */
+
 h2 {
   font-size: 20px;
   text-align: center;
@@ -237,7 +230,7 @@ h3 {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   letter-spacing: 0.5px;
 }
-/* Progress Bar */
+
 .player-progress {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 10px;
@@ -267,7 +260,6 @@ h3 {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
 }
 
-/* Creative Thumb/Handle */
 .progress::after {
   content: "";
   position: absolute;
@@ -309,7 +301,7 @@ h3 {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
   pointer-events: none;
 }
-/* Player Controls */
+
 .player-controls {
   width: 380px;
   position: relative;
@@ -338,7 +330,7 @@ h3 {
   transform: scale(0.95);
   filter: brightness(0.9);
 }
-/* Add Folder Button - with video animation */
+
 .video-button {
   position: relative;
   z-index: 0;
@@ -406,7 +398,6 @@ h3 {
   pointer-events: none;
 }
 
-/* ===================== Menu Toggle - Music Equalizer Style ===================== */
 #menu-toggle {
   display: none;
 }
@@ -420,7 +411,7 @@ h3 {
     var(--accent-secondary) 100%
   );
   --glow-color: rgba(157, 190, 185, 0.55);
-  --toggle-offset-y: 25px; /* Adjust this to move toggle up/down */
+  --toggle-offset-y: 25px;
 
   position: relative;
   transform: translateY(var(--toggle-offset-y));
@@ -454,7 +445,6 @@ h3 {
   transform: translateY(var(--toggle-offset-y)) scale(0.95);
 }
 
-/* Equalizer bars */
 .bars {
   width: var(--bar-width);
   height: 12px;
@@ -509,12 +499,10 @@ h3 {
   }
 }
 
-/* Hover state - bars animate */
 .toggle:hover .bars {
   animation-play-state: running;
 }
 
-/* Checked state - X transformation with glow */
 #menu-toggle:checked + .toggle {
   background: rgba(157, 190, 185, 0.18);
   border-color: rgba(157, 190, 185, 0.55);
@@ -544,7 +532,6 @@ h3 {
   transform: rotate(-45deg);
 }
 
-/* ===================== Song List ===================== */
 #song-list {
   --stagger-delay: 50ms;
   max-height: 0;
@@ -598,7 +585,6 @@ h3 {
   box-shadow: var(--sb-thumb-shadow-hover);
 }
 
-/* Hide scrollbar when list is hidden */
 #song-list:not(.show) {
   overflow-y: hidden;
   scrollbar-width: none;
@@ -608,7 +594,6 @@ h3 {
   display: none;
 }
 
-/* Song List Items */
 #song-list li,
 #songs-list li {
   position: relative;
@@ -632,12 +617,10 @@ h3 {
   transition: transform var(--transition-bounce),
     background var(--transition-normal), border-color var(--transition-normal),
     box-shadow var(--transition-normal);
-  /* Staggered entrance animation */
   opacity: 0;
   animation: songItemSlideIn 0.4s ease forwards;
 }
 
-/* Staggered animation delays for first 10 items */
 #song-list.show li:nth-child(1) {
   animation-delay: calc(var(--stagger-delay) * 1);
 }
@@ -677,7 +660,6 @@ h3 {
   }
 }
 
-/* Hover state */
 #song-list li:hover,
 #songs-list li:hover {
   background: var(--song-item-bg-hover);
@@ -686,7 +668,6 @@ h3 {
   box-shadow: var(--song-item-glow);
 }
 
-/* Active/Playing state */
 #song-list li.active,
 #songs-list li.active {
   background: var(--song-item-bg-active);
@@ -694,7 +675,6 @@ h3 {
   box-shadow: var(--song-item-glow-active);
 }
 
-/* Gradient accent bar on left side */
 #song-list li::after,
 #songs-list li::after {
   content: "";
@@ -723,7 +703,6 @@ h3 {
   transform: translateY(-50%) scaleY(1);
 }
 
-/* Music icon */
 #song-list li::before,
 #songs-list li::before {
   content: "";
@@ -770,7 +749,6 @@ h3 {
   }
 }
 
-/* Add to your existing CSS */
 .marquee-title {
   white-space: nowrap;
   overflow: hidden;
@@ -792,6 +770,7 @@ h3 {
 
   transition: none;
 }
+
 @keyframes marquee {
   0% {
     transform: translateX(100%);
@@ -800,16 +779,16 @@ h3 {
     transform: translateX(-100%);
   }
 }
-/* Smooth start/end */
+
 .marquee-title span::after {
   content: " ";
   padding-right: 100%;
 }
-/* Pause on hover */
+
 .marquee-title:hover span {
   animation-play-state: paused;
 }
-/* Style for the loop button */
+
 #loop-shuffle-btn {
   background: none;
   border: none;
@@ -821,7 +800,7 @@ h3 {
   top: -2px;
   left: -45px;
 }
-/* Style for the SVG icon */
+
 #loop-shuffle-btn img {
   width: 100%;
   height: 100%;
@@ -829,12 +808,11 @@ h3 {
   transition: all 0.3s ease;
 }
 
-/* Active state for Loop Once/All */
 #loop-shuffle-btn img.active {
   opacity: 1;
   filter: none;
 }
-/* Shuffle Button */
+
 #shuffle-btn {
   background: none;
   border: none;
@@ -852,12 +830,12 @@ h3 {
   object-fit: contain;
   transition: all 0.3s ease;
 }
-/* Active state (Shuffle On) */
+
 #shuffle-btn img.active {
   opacity: 1;
   filter: none;
 }
-/* Remove focus outline/border for buttons and images inside buttons */
+
 #shuffle-btn,
 #shuffle-btn:focus,
 #loop-shuffle-btn,
@@ -870,7 +848,7 @@ h3 {
   box-shadow: none !important;
   border: none;
 }
-/* Remove focus outline for video inside Add Music button */
+
 .video-button video:focus {
   outline: none !important;
   box-shadow: none !important;
@@ -937,9 +915,6 @@ h3 {
   display: none;
 }
 
-/* Magical Rain Mode */
-/* Background video overlay is fully handled in JS via #rain-video.
-   We keep only the lightning/ container styling here. */
 .lightning-flash {
   position: fixed;
   top: 0;
@@ -970,7 +945,6 @@ h3 {
   transition: all 0.5s ease;
 }
 
-/* Volume Toast Popup */
 .toast {
   position: fixed;
   left: 50%;
@@ -1034,7 +1008,6 @@ h3 {
   position: relative;
 }
 
-/* Sound wave animation bars */
 .volume-bar-bg::before,
 .volume-bar-bg::after {
   content: "";
@@ -1097,28 +1070,28 @@ h3 {
   position: relative;
 }
 
-/* Transparent Scrollbar for WebKit Browsers (Chrome, Edge, Safari) */
-/* Scrollbar for main window */
 html::-webkit-scrollbar {
   width: 8px;
 }
+
 html::-webkit-scrollbar-track {
   background: transparent;
 }
+
 html::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
 }
+
 html::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
 }
-/* Fallback for Firefox */
+
 html {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
-/* Global Loader - Enhanced Vinyl + Equalizer Hybrid */
 .loader {
   position: fixed;
   inset: 0;
@@ -1144,7 +1117,6 @@ html {
   pointer-events: none;
 }
 
-/* Vinyl disc core */
 .loader-vinyl {
   position: relative;
   width: 140px;
@@ -1220,7 +1192,6 @@ html {
   box-shadow: 0 0 0 1px #272a40, 0 0 4px #000 inset;
 }
 
-/* Orbiting notes */
 .loader-notes {
   position: absolute;
   inset: 0;
@@ -1255,7 +1226,6 @@ html {
   }
 }
 
-/* Equalizer arcs */
 .loader-arcs {
   position: absolute;
   inset: -14%;
@@ -1290,7 +1260,6 @@ html {
   }
 }
 
-/* Loader text */
 .loader #loader-text {
   font-family: "Ubuntu", sans-serif;
   letter-spacing: 0.6px;
@@ -1323,7 +1292,6 @@ html {
   }
 }
 
-/* ===================== Query Modal (Aesthetic Card) ===================== */
 .query-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1416,7 +1384,7 @@ html {
 .query-modal-input {
   width: 100%;
   padding: 16px 24px;
-  border-radius: 50px; /* Pill shape */
+  border-radius: 50px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
@@ -1450,7 +1418,7 @@ html {
 
 .btn-modal {
   padding: 12px 32px;
-  border-radius: 50px; /* Pill shape */
+  border-radius: 50px;
   border: none;
   cursor: pointer;
   color: #fff;
@@ -1488,7 +1456,6 @@ html {
   border-color: rgba(78, 84, 200, 0.4);
 }
 
-/* ===================== Birthday Photo Frame ===================== */
 .player-img.birthday-frame::before {
   content: "";
   position: absolute;
@@ -1538,7 +1505,6 @@ html {
   }
 }
 
-/* Birthday sparkles around frame */
 .player-img.birthday-frame .birthday-sparkle {
   position: absolute;
   font-size: 16px;
@@ -1590,7 +1556,6 @@ html {
   }
 }
 
-/* ===================== Birthday Badge ===================== */
 .birthday-badge {
   position: fixed;
   top: 20px;

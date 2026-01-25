@@ -12,25 +12,14 @@ use tauri_plugin_dialog::{DialogExt, FilePath};
 use tokio::{fs, task};
 use walkdir::WalkDir;
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Constants
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/// Supported audio file extensions for local playback
 const SUPPORTED_AUDIO_EXTENSIONS: [&str; 5] = ["mp3", "wav", "ogg", "flac", "m4a"];
-
-/// yt-dlp audio format preference string
 const YTDLP_AUDIO_FORMAT: &str = "bestaudio[ext=m4a]/bestaudio/best";
-
-/// Settings filename
 const SETTINGS_FILE: &str = "settings.json";
-
-/// Default volume level (0.0 - 1.0)
 const DEFAULT_VOLUME: f64 = 0.5;
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 // Error Types
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 
 #[derive(Debug, thiserror::Error, Serialize, Clone)]
 #[serde(untagged)]
@@ -50,20 +39,26 @@ pub enum CommandError {
 }
 
 impl From<std::io::Error> for CommandError {
-    fn from(err: std::io::Error) -> Self { Self::Io(err.to_string()) }
+    fn from(err: std::io::Error) -> Self {
+        Self::Io(err.to_string())
+    }
 }
 
 impl From<lofty::error::LoftyError> for CommandError {
-    fn from(err: lofty::error::LoftyError) -> Self { Self::Lofty(err.to_string()) }
+    fn from(err: lofty::error::LoftyError) -> Self {
+        Self::Lofty(err.to_string())
+    }
 }
 
 impl From<CommandError> for tauri::Error {
-    fn from(error: CommandError) -> Self { Self::Anyhow(anyhow::anyhow!(error.to_string())) }
+    fn from(error: CommandError) -> Self {
+        Self::Anyhow(anyhow::anyhow!(error.to_string()))
+    }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 // Data Structures
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 
 #[derive(Debug, Serialize, Clone)]
 pub struct AudioFile {
@@ -98,23 +93,29 @@ impl Default for UserSettings {
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 // Utility Functions
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 
-/// Returns the path to yt-dlp executable, checking local bin/ first then system PATH
 fn get_ytdlp_path() -> &'static str {
     #[cfg(target_os = "windows")]
     {
-        if Path::new("bin/yt-dlp.exe").exists() { "bin/yt-dlp.exe" } else { "yt-dlp.exe" }
+        if Path::new("bin/yt-dlp.exe").exists() {
+            "bin/yt-dlp.exe"
+        } else {
+            "yt-dlp.exe"
+        }
     }
     #[cfg(not(target_os = "windows"))]
     {
-        if Path::new("bin/yt-dlp").exists() { "bin/yt-dlp" } else { "yt-dlp" }
+        if Path::new("bin/yt-dlp").exists() {
+            "bin/yt-dlp"
+        } else {
+            "yt-dlp"
+        }
     }
 }
 
-/// Extracts audio metadata from a file path, returning display name and artist
 fn extract_audio_metadata(path: &Path) -> (String, String) {
     let file_name = path
         .file_name()
@@ -143,7 +144,6 @@ fn extract_audio_metadata(path: &Path) -> (String, String) {
     (display_name, artist)
 }
 
-/// Gets the app data directory path for settings storage
 async fn get_settings_path(app_handle: &AppHandle) -> std::result::Result<PathBuf, CommandError> {
     let app_data_dir = app_handle
         .path()
@@ -153,22 +153,20 @@ async fn get_settings_path(app_handle: &AppHandle) -> std::result::Result<PathBu
     Ok(app_data_dir.join(SETTINGS_FILE))
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 // Tauri Commands
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
 
 #[tauri::command]
 async fn select_and_list_audio_files(app_handle: AppHandle) -> Result<Vec<AudioFile>> {
     let folder_path = pick_folder(&app_handle)?;
-    
-    // Collect candidate file entries (fast, non-blocking)
+
     let entries: Vec<_> = WalkDir::new(&folder_path)
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|entry| entry.path().is_file())
         .collect();
 
-    // Process files with metadata extraction in blocking context
     let audio_files = task::spawn_blocking(move || {
         entries
             .par_iter()
@@ -181,7 +179,6 @@ async fn select_and_list_audio_files(app_handle: AppHandle) -> Result<Vec<AudioF
     Ok(audio_files)
 }
 
-/// Picks a folder using the system dialog
 fn pick_folder(app_handle: &AppHandle) -> Result<PathBuf> {
     let (tx, rx) = std::sync::mpsc::channel();
 
@@ -201,7 +198,6 @@ fn pick_folder(app_handle: &AppHandle) -> Result<PathBuf> {
     }
 }
 
-/// Processes a single file entry and returns AudioFile if it's a supported audio format
 fn process_audio_entry(path: &Path) -> Option<AudioFile> {
     let extension = path.extension()?;
     let ext_str = extension.to_string_lossy().to_lowercase();
@@ -237,8 +233,7 @@ async fn read_file_content(path: String) -> Result<Vec<u8>> {
 #[tauri::command]
 async fn save_user_settings(app_handle: AppHandle, settings: UserSettings) -> Result<()> {
     let settings_path = get_settings_path(&app_handle).await?;
-    
-    // Ensure directory exists
+
     if let Some(parent) = settings_path.parent() {
         fs::create_dir_all(parent)
             .await
@@ -258,48 +253,41 @@ async fn save_user_settings(app_handle: AppHandle, settings: UserSettings) -> Re
 #[tauri::command]
 async fn load_user_settings(app_handle: AppHandle) -> Result<UserSettings> {
     let settings_path = get_settings_path(&app_handle).await?;
-    
+
     if !settings_path.exists() {
         return Ok(UserSettings::default());
     }
-    
+
     let json = fs::read_to_string(&settings_path)
         .await
         .map_err(|e| CommandError::Io(format!("Failed to read settings: {e}")))?;
-    
+
     Ok(serde_json::from_str(&json).unwrap_or_default())
 }
+
 #[tauri::command]
 async fn search_playlist_and_stream(song_name: String) -> Result<Vec<OnlineSong>> {
     let ytdlp = get_ytdlp_path();
     let args = build_ytdlp_args(&song_name);
 
-    // Execute yt-dlp in blocking context
     let output = task::spawn_blocking(move || execute_ytdlp(ytdlp, &args))
         .await
-        .map_err(|e| CommandError::Unknown(format!("Blocking task panicked: {e}")))??;
+        .map_err(|e| CommandError::Unknown(format!("Blocking task panicked: {e}")))?
+        ?;
 
-    // Parse output into song list
     let songs = parse_ytdlp_output(&output);
     Ok(songs)
 }
 
-/// Determines if input is a playlist, video URL, or search query and builds appropriate args
 fn build_ytdlp_args(input: &str) -> Vec<String> {
-    // Check for playlist URLs (both YouTube and YouTube Music)
-    // YouTube Music playlists can be:
-    // - music.youtube.com/playlist?list=PLxxx
-    // - music.youtube.com/watch?v=xxx&list=PLxxx (video within playlist context)
     let is_playlist = input.contains("youtube.com/playlist?list=") 
         || input.contains("music.youtube.com/playlist?list=")
         || (input.contains("music.youtube.com/watch") && input.contains("&list="));
-    
-    // Check for single video URLs (YouTube and YouTube Music)
+
     let is_video = input.contains("youtube.com/watch?v=") 
         || input.contains("music.youtube.com/watch?v=")
         || input.contains("youtu.be/");
 
-    // Common args to suppress warnings and handle unavailable videos gracefully
     let common_args = vec![
         "--dump-json".into(),
         "--ignore-errors".into(),
@@ -326,12 +314,10 @@ fn build_ytdlp_args(input: &str) -> Vec<String> {
     }
 }
 
-/// Executes yt-dlp command and returns stdout on success
 fn execute_ytdlp(ytdlp: &str, args: &[String]) -> std::result::Result<String, CommandError> {
     let mut cmd = Command::new(ytdlp);
     cmd.args(args);
 
-    // Hide console window on Windows
     #[cfg(target_os = "windows")]
     {
         use std::os::windows::process::CommandExt;
@@ -350,10 +336,7 @@ fn execute_ytdlp(ytdlp: &str, args: &[String]) -> std::result::Result<String, Co
     })?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
-    
-    // yt-dlp may exit with code 1 even when it successfully extracts some videos
-    // (e.g., when some videos in a playlist are unavailable)
-    // Only fail if there's no valid output at all
+
     if !output.status.success() && stdout.trim().is_empty() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         let exit_code = output.status.code()
@@ -365,7 +348,6 @@ fn execute_ytdlp(ytdlp: &str, args: &[String]) -> std::result::Result<String, Co
     Ok(stdout)
 }
 
-/// Parses yt-dlp JSON output lines into OnlineSong structs
 fn parse_ytdlp_output(raw: &str) -> Vec<OnlineSong> {
     raw.lines()
         .filter_map(|line| {
@@ -393,9 +375,9 @@ fn parse_ytdlp_output(raw: &str) -> Vec<OnlineSong> {
         .collect()
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Application Entry Point
-// ═══════════════════════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry Point
+// ─────────────────────────────────────────────────────────────────────────────
 
 pub fn main() {
     tauri::Builder::default()

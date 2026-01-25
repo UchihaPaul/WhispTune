@@ -1,14 +1,10 @@
-// whisptune.js
-
 const { invoke } = window.__TAURI__.core;
 
-// --- User Settings Management ---
 let userSettings = {
   volume: 0.5,
   global_shortcuts_enabled: true,
 };
 
-// --- App Configuration Constants ---
 const CONFIG = {
   BATCH_SIZE: 5,
   PROGRESS_UPDATE_INTERVAL: 250,
@@ -48,7 +44,6 @@ const CONFIG = {
   ],
 };
 
-// Load settings on startup
 async function loadUserSettings() {
   try {
     userSettings = await invoke("load_user_settings");
@@ -60,7 +55,6 @@ async function loadUserSettings() {
   }
 }
 
-// Save settings
 async function saveUserSettings() {
   try {
     await invoke("save_user_settings", { settings: userSettings });
@@ -70,7 +64,6 @@ async function saveUserSettings() {
   }
 }
 
-// Debounced save function (avoid saving too frequently)
 let saveTimeout = null;
 function debouncedSaveSettings() {
   if (saveTimeout) clearTimeout(saveTimeout);
@@ -79,7 +72,6 @@ function debouncedSaveSettings() {
   }, 500);
 }
 
-// --- DOM Element References ---
 const image = document.getElementById("cover");
 const title = document.getElementById("music-title");
 const artist = document.getElementById("music-artist");
@@ -91,10 +83,9 @@ const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 const playBtn = document.getElementById("play");
 const background = document.getElementById("bg-img");
-const loopShuffleBtn = document.getElementById("loop-shuffle-btn"); // Combined loop button
-const shuffleBtn = document.getElementById("shuffle-btn"); // Separate shuffle button
+const loopShuffleBtn = document.getElementById("loop-shuffle-btn");
+const shuffleBtn = document.getElementById("shuffle-btn");
 
-// Loader refs
 const loaderEl = document.getElementById("global-loader");
 const loaderTextEl = document.getElementById("loader-text");
 let loaderRefCount = 0;
@@ -108,28 +99,22 @@ function hideLoader() {
   if (loaderEl && loaderRefCount === 0) loaderEl.classList.add("hidden");
 }
 
-// Disable right-click context menu everywhere in the app
 window.addEventListener("contextmenu", function (e) {
   e.preventDefault();
 });
 
-// Prevent default behavior for dragover and drop events (to avoid opening files in the browser)
 window.addEventListener("dragover", (e) => e.preventDefault());
 window.addEventListener("drop", (e) => e.preventDefault());
 
-// Block unwanted keyboard shortcuts (refresh, zoom, navigation)
 window.addEventListener("keydown", function (e) {
-  // Block F5, Ctrl+R (refresh)
   if (e.key === "F5" || (e.ctrlKey && e.key.toLowerCase() === "r")) {
     e.preventDefault();
     return;
   }
-  // Block Back/Forward navigation
   if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
     e.preventDefault();
     return;
   }
-  // Block zoom shortcuts and fullscreen
   if (
     (e.ctrlKey && (e.key === "+" || e.key === "-" || e.key === "=")) ||
     e.key === "F11"
@@ -146,7 +131,6 @@ window.addEventListener(
   { passive: false }
 );
 
-// Set a random background and player image on app load
 (function setRandomDefaultImages() {
   const randomImg = randomFromArray(CONFIG.DEFAULT_IMAGES);
   const bgImg = document.getElementById("bg-img");
@@ -155,8 +139,6 @@ window.addEventListener(
   if (coverImg) coverImg.src = randomImg;
 })();
 
-// Function to set video based on time of day
-// Function to set video based on time of day
 function setTimeBasedVideo() {
   const now = new Date();
   const hour = now.getHours();
@@ -165,48 +147,33 @@ function setTimeBasedVideo() {
   if (videoElement) {
     let videoSrc;
 
-    // Morning: 6 AM - 11:59 AM
     if (hour >= 6 && hour < 12) {
       videoSrc = "videos/morning.mp4";
-    }
-    // Afternoon: 12 PM - 2:59 PM
-    else if (hour >= 12 && hour < 15) {
+    } else if (hour >= 12 && hour < 15) {
       videoSrc = "videos/afternoon.mp4";
-    }
-    // Evening: 3 PM - 5:59 PM
-    else if (hour >= 15 && hour < 18) {
+    } else if (hour >= 15 && hour < 18) {
       videoSrc = "videos/evening.mp4";
-    }
-    // Night: 6 PM - 5:59 AM
-    else {
+    } else {
       videoSrc = "videos/night.mp4";
     }
 
-    // 🎉 5% chance for a surprise video override!
     if (Math.random() < CONFIG.SURPRISE_VIDEO_CHANCE) {
       videoSrc = randomFromArray(CONFIG.SURPRISE_VIDEOS);
-      console.log("🎉 Surprise video activated!", videoSrc);
     }
 
-    // Only change if the source is different to avoid unnecessary reloads
     if (videoElement.src !== videoSrc) {
       videoElement.src = videoSrc;
       const video = videoElement.parentElement;
-      video.load(); // Reload the video with new source
+      video.load();
     }
   }
 }
 
-// Set initial video based on current time
 setTimeBasedVideo();
-
-// Update video every hour
 setInterval(setTimeBasedVideo, CONFIG.VIDEO_UPDATE_INTERVAL);
 
-// Beautiful birthday input dialog
 function showBirthdayInputDialog() {
   return new Promise((resolve) => {
-    // Create backdrop
     const backdrop = document.createElement("div");
     backdrop.style.cssText = `
       position: fixed;
@@ -220,7 +187,6 @@ function showBirthdayInputDialog() {
       animation: fadeIn 0.3s ease;
     `;
 
-    // Create modal
     const modal = document.createElement("div");
     modal.style.cssText = `
       position: fixed;
@@ -390,7 +356,6 @@ function showBirthdayInputDialog() {
     const saveBtn = document.getElementById("save-birthday-btn");
     const skipBtn = document.getElementById("skip-birthday-btn");
 
-    // Hover effects
     saveBtn.onmouseover = () => {
       saveBtn.style.transform = "translateY(-2px)";
       saveBtn.style.boxShadow = "0 8px 25px rgba(76, 175, 80, 0.6)";
@@ -409,7 +374,6 @@ function showBirthdayInputDialog() {
       skipBtn.style.transform = "translateY(0)";
     };
 
-    // Select hover effects
     monthSelect.onmouseover = () =>
       (monthSelect.style.borderColor = "rgba(255,255,255,0.6)");
     monthSelect.onmouseout = () =>
@@ -419,13 +383,11 @@ function showBirthdayInputDialog() {
     daySelect.onmouseout = () =>
       (daySelect.style.borderColor = "rgba(255,255,255,0.3)");
 
-    // Save button handler
     saveBtn.onclick = () => {
       const month = monthSelect.value;
       const day = daySelect.value;
 
       if (!month || !day) {
-        // Shake animation for error
         modal.style.animation = "none";
         setTimeout(() => {
           modal.style.animation = "shake 0.5s ease";
@@ -437,9 +399,7 @@ function showBirthdayInputDialog() {
 
       const birthday = `${month}-${day}`;
       localStorage.setItem("userBirthday", birthday);
-      console.log("🎂 Birthday saved:", birthday);
 
-      // Success animation
       modal.style.animation = "slideOut 0.3s ease forwards";
       backdrop.style.animation = "fadeOut 0.3s ease forwards";
 
@@ -450,7 +410,6 @@ function showBirthdayInputDialog() {
       }, 300);
     };
 
-    // Skip button handler
     skipBtn.onclick = () => {
       modal.style.animation = "slideOut 0.3s ease forwards";
       backdrop.style.animation = "fadeOut 0.3s ease forwards";
@@ -462,7 +421,6 @@ function showBirthdayInputDialog() {
       }, 300);
     };
 
-    // Add CSS animations
     const style = document.createElement("style");
     style.textContent = `
       @keyframes shake {
@@ -484,29 +442,22 @@ function showBirthdayInputDialog() {
   });
 }
 
-// Add this after your existing setTimeBasedVideo function
 function checkBirthdayAndSurprise() {
-  // Get stored birthday from localStorage
   const storedBirthday = localStorage.getItem("userBirthday");
   const today = new Date();
-  const todayString = `${today.getMonth() + 1}-${today.getDate()}`; // Format: MM-DD
+  const todayString = `${today.getMonth() + 1}-${today.getDate()}`;
 
   if (!storedBirthday) {
-    // First time - ask for birthday with custom dialog
     showBirthdayInputDialog();
     return;
   }
 
-  // Check if today is the user's birthday
   if (storedBirthday === todayString) {
     triggerBirthdaySurprise();
   }
 }
 
 function triggerBirthdaySurprise() {
-  console.log("🎉 IT'S YOUR BIRTHDAY! 🎉");
-
-  // 1. Special Birthday Background
   const bgImg = document.getElementById("bg-img");
   const coverImg = document.getElementById("cover");
   const randomBirthdayImg = randomFromArray(CONFIG.BIRTHDAY_IMAGES);
@@ -516,32 +467,19 @@ function triggerBirthdaySurprise() {
     coverImg.src = randomBirthdayImg;
   }
 
-  // 2. Special Birthday Video for Add Music Button
   const videoElement = document.querySelector(".button-video source");
   if (videoElement) {
-    videoElement.src = "videos/birthday.mp4"; // Special birthday video
+    videoElement.src = "videos/birthday.mp4";
     const video = videoElement.parentElement;
     video.load();
   }
 
-  // 3. Birthday Confetti Explosion
   createBirthdayConfetti();
-
-  // 4. Birthday Photo Frame
   createBirthdayPhotoFrame();
-
-  // 5. Birthday Badge
   createBirthdayBadge();
-
-  // 6. Special Birthday Toast Message
   showBirthdayToast();
-
-  // 7. Change page title for the day
   document.title = "🎂 Happy Birthday! - WhispTune 🎉";
 
-  // Note: Automatic Birthday Playlist Search removed by request.
-
-  // 8. Store that we've celebrated today (prevent multiple triggers)
   localStorage.setItem("birthdayCelebratedToday", new Date().toDateString());
 }
 
@@ -582,7 +520,6 @@ function createBirthdayConfetti() {
     "#fd79a8",
   ];
 
-  // Create 50 confetti pieces
   for (let i = 0; i < 50; i++) {
     const confetti = document.createElement("div");
     confetti.textContent =
@@ -597,7 +534,6 @@ function createBirthdayConfetti() {
 
     confettiContainer.appendChild(confetti);
 
-    // Animate confetti falling
     anime({
       targets: confetti,
       translateX: [
@@ -619,7 +555,6 @@ function createBirthdayConfetti() {
     });
   }
 
-  // Remove container after animation
   setTimeout(() => {
     confettiContainer.remove();
   }, 8000);
@@ -629,10 +564,8 @@ function createBirthdayPhotoFrame() {
   const playerImg = document.querySelector(".player-img");
   if (!playerImg) return;
 
-  // Add birthday frame class
   playerImg.classList.add("birthday-frame");
 
-  // Add sparkle decorations
   const sparkles = ["✨", "🌟", "💫", "⭐", "✨", "🌟"];
   sparkles.forEach((sparkle) => {
     const sparkleEl = document.createElement("span");
@@ -640,12 +573,9 @@ function createBirthdayPhotoFrame() {
     sparkleEl.textContent = sparkle;
     playerImg.appendChild(sparkleEl);
   });
-
-  console.log("🖼️ Birthday photo frame applied!");
 }
 
 function createBirthdayBadge() {
-  // Check if badge already exists
   if (document.querySelector(".birthday-badge")) return;
 
   const badge = document.createElement("div");
@@ -661,14 +591,12 @@ function createBirthdayBadge() {
 
   document.body.appendChild(badge);
 
-  // Close button functionality
   const closeBtn = badge.querySelector(".birthday-badge-close");
   closeBtn.addEventListener("click", () => {
     badge.style.animation = "birthday-badge-exit 0.3s ease forwards";
     setTimeout(() => badge.remove(), 300);
   });
 
-  // Add exit animation keyframes dynamically
   if (!document.getElementById("birthday-badge-exit-style")) {
     const style = document.createElement("style");
     style.id = "birthday-badge-exit-style";
@@ -680,12 +608,9 @@ function createBirthdayBadge() {
     `;
     document.head.appendChild(style);
   }
-
-  console.log("🏅 Birthday badge created!");
 }
 
 function showBirthdayToast() {
-  // Array of special birthday quotes
   const birthdayQuotes = [
     "Wishing you a day filled with happiness and a year filled with joy. Happy Birthday!",
     "May your special day be as amazing as you are. Happy Birthday!",
@@ -694,11 +619,9 @@ function showBirthdayToast() {
     "On your birthday, may your playlist be epic and your year be even better!",
   ];
 
-  // Select a random quote
   const randomQuote =
     birthdayQuotes[Math.floor(Math.random() * birthdayQuotes.length)];
 
-  // Create special birthday toast
   const birthdayToast = document.createElement("div");
   birthdayToast.className = "birthday-toast";
   birthdayToast.innerHTML = `
@@ -729,7 +652,6 @@ function showBirthdayToast() {
 
   document.body.appendChild(birthdayToast);
 
-  // Animate birthday toast
   anime({
     targets: birthdayToast,
     opacity: [0, 1],
@@ -737,7 +659,6 @@ function showBirthdayToast() {
     duration: 800,
     easing: "easeOutElastic(1, .8)",
     complete: () => {
-      // Keep it visible for 6 seconds
       setTimeout(() => {
         anime({
           targets: birthdayToast,
@@ -752,60 +673,52 @@ function showBirthdayToast() {
   });
 }
 
-// Check for birthday on app load
 checkBirthdayAndSurprise();
 
-// Check for birthday every day at midnight
 function scheduleBirthdayCheck() {
   const now = new Date();
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);
-  tomorrow.setHours(0, 0, 1, 0); // 1 second after midnight
+  tomorrow.setHours(0, 0, 1, 0);
 
   const msUntilMidnight = tomorrow.getTime() - now.getTime();
 
   setTimeout(() => {
     checkBirthdayAndSurprise();
-    scheduleBirthdayCheck(); // Schedule next check
+    scheduleBirthdayCheck();
   }, msUntilMidnight);
 }
 
 scheduleBirthdayCheck();
 
-// --- Unified Playlist State ---
 let activePlaylist = [];
 let activeIndex = 0;
 let songs = [];
-// --- Player State Variables ---
-let currentHowl = null; // Store the current Howl instance
-let isLoopOnce = false; // Track loop once state (repeat current song)
-let isLoop = false; // Track loop all state (loop entire playlist)
-let isShuffle = false; // Track shuffle state
-let shuffledIndices = []; // Store shuffled playlist order
-let shuffledPlaybackIndex = 0; // Current position in shuffled playlist
-let showFallbackImage = false; // Add toggle for album art/fallback image
-let blobUrls = []; // Track blob URLs for cleanup
-let lightningInterval = null; // Track lightning interval for cleanup
-let progressRAFId = null; // Track requestAnimationFrame for progress updates
+
+let currentHowl = null;
+let isLoopOnce = false;
+let isLoop = false;
+let isShuffle = false;
+let shuffledIndices = [];
+let shuffledPlaybackIndex = 0;
+let showFallbackImage = false;
+let blobUrls = [];
+let lightningInterval = null;
+let progressRAFId = null;
 let lastProgressUpdate = 0;
-let seekTargetTime = null; // Track pending seek to avoid stale reads
-let wasPlayingBeforeSeek = false; // Track if audio was playing before a seek
+let seekTargetTime = null;
+let wasPlayingBeforeSeek = false;
 
-// --- Helper Functions ---
-
-// Format time in seconds to MM:SS string
 function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-// Get random item from array
 function randomFromArray(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// Cleanup function to revoke blob URLs and prevent memory leaks
 function cleanupBlobUrls() {
   blobUrls.forEach((url) => {
     try {
@@ -817,12 +730,10 @@ function cleanupBlobUrls() {
   blobUrls = [];
 }
 
-// Capitalize the first letter of each word in a string
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-// Toggle play/pause state of the music
 function togglePlay() {
   if (!currentHowl) return;
 
@@ -842,7 +753,6 @@ function togglePlay() {
   }
 }
 
-// Play the current music
 function playMusic() {
   if (!currentHowl && songs.length > 0) {
     loadMusic(activePlaylist[activeIndex]);
@@ -856,7 +766,6 @@ function playMusic() {
   }
 }
 
-// Pause the current music
 function pauseMusic() {
   if (currentHowl) {
     currentHowl.pause();
@@ -868,7 +777,6 @@ function pauseMusic() {
   }
 }
 
-// Load a song into the Howler.js player and update UI
 function loadMusic(song = activePlaylist[activeIndex]) {
   if (!song) {
     console.warn("loadMusic called with undefined song");
@@ -879,30 +787,24 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     currentHowl.unload();
   }
 
-  // Check if it's an online song (has stream_url property with a value)
   const isOnline = Boolean(song.stream_url);
 
   const songTitle = isOnline ? (song.title || "Unknown Title") : (song.displayName || song.title || "Unknown");
   const songArtist = song.artist || "Unknown Artist";
 
-  console.log("Loading song:", { isOnline, title: songTitle, artist: songArtist });
-
   title.textContent = songTitle;
   artist.textContent = songArtist;
 
   if (isOnline) {
-    // Set cover and background to the online song's thumbnail
     if (song.thumbnail) {
       image.style.display = "";
       background.style.display = "";
       image.src = song.thumbnail;
       background.src = song.thumbnail;
     } else {
-      // Fallback if no thumbnail
       setRandomAssetImage();
     }
   } else {
-    // Local song logic (use album art or fallback)
     updateAlbumArt();
   }
 
@@ -922,7 +824,7 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     src: [isOnline ? song.stream_url : song.path],
     html5: true,
     format: [isOnline ? "m4a" : song.format],
-    volume: userSettings.volume, // Apply saved volume
+    volume: userSettings.volume,
     onplay: () => {
       if (progressRAFId === null) {
         progressRAFId = requestAnimationFrame(updateProgressBar);
@@ -934,7 +836,6 @@ function loadMusic(song = activePlaylist[activeIndex]) {
     },
     onend: () => {
       if (isLoopOnce) {
-        // Repeat the current song
         loadMusic(activePlaylist[activeIndex]);
         playMusic();
         return;
@@ -947,15 +848,13 @@ function loadMusic(song = activePlaylist[activeIndex]) {
       if (!isLastSong) {
         changeMusic(1);
       } else if (isLoop) {
-        changeMusic(1); // This will loop back to the start of the (shuffled) playlist
+        changeMusic(1);
       } else {
-        // Stop playback at the end
         pauseMusic();
         playBtn.src = "icons/play.svg";
       }
     },
     onseek: () => {
-      // After seek completes, restart RAF loop if we were/are playing
       if (
         (wasPlayingBeforeSeek || currentHowl.playing()) &&
         progressRAFId === null
@@ -967,15 +866,13 @@ function loadMusic(song = activePlaylist[activeIndex]) {
   });
 }
 
-// Set a random image from local assets as cover/background fallback
 function setRandomAssetImage() {
-  const randomImageNumber = Math.floor(Math.random() * 18) + 1; // Assuming 15 fallback images
-  const randomImage = `assets/image${randomImageNumber}.jpg`; // Path to your local assets folder
+  const randomImageNumber = Math.floor(Math.random() * 18) + 1;
+  const randomImage = `assets/image${randomImageNumber}.jpg`;
   image.src = randomImage;
   background.src = randomImage;
 }
 
-// Change the current music index and load/play the new song (unified)
 function changeMusic(direction) {
   if (activePlaylist.length === 0) {
     console.warn("No songs loaded to change music.");
@@ -997,7 +894,6 @@ function changeMusic(direction) {
   highlightCurrentSong();
 }
 
-// Update the visual progress bar based on current playback time
 function updateProgressBar() {
   if (!currentHowl) return;
 
@@ -1007,11 +903,10 @@ function updateProgressBar() {
     return;
   }
 
-  // Use seekTargetTime if we just seeked, otherwise read from Howler
   let currentTime;
   if (seekTargetTime !== null) {
     currentTime = seekTargetTime;
-    seekTargetTime = null; // Clear after using once
+    seekTargetTime = null;
   } else {
     currentTime = currentHowl.seek() || 0;
   }
@@ -1026,7 +921,6 @@ function updateProgressBar() {
     durationEl.textContent = formatTime(duration);
   }
 
-  // Only keep updating if the song is playing
   if (currentHowl.playing()) {
     progressRAFId = requestAnimationFrame(updateProgressBar);
   } else {
@@ -1034,33 +928,25 @@ function updateProgressBar() {
   }
 }
 
-// Set the current playback position based on click on the progress bar
 function setProgressBar(e) {
   if (!currentHowl) return;
 
-  const width = playerProgress.clientWidth; // Total width of the progress bar area
-  const clickX = e.offsetX; // X-coordinate of the click relative to the progress bar
-  const duration = currentHowl.duration(); // Total duration of the current song
+  const width = playerProgress.clientWidth;
+  const clickX = e.offsetX;
+  const duration = currentHowl.duration();
   const newTime = (clickX / width) * duration;
 
-  // Track if we were playing before seek
   wasPlayingBeforeSeek = currentHowl.playing();
-
-  currentHowl.seek(newTime); // Set playback position
-
-  // Store the seek target so updateProgressBar uses it instead of stale Howler value
+  currentHowl.seek(newTime);
   seekTargetTime = newTime;
 
-  // Immediately update UI so progress bar reflects the new position
   const progressPercent = (newTime / duration) * 100;
   progress.style.width = `${progressPercent}%`;
   currentTimeEl.textContent = formatTime(newTime);
 
-  // Force immediate update on next RAF cycle
   lastProgressUpdate = 0;
 }
 
-// Helper to reset shuffle state, e.g., when a new playlist is loaded
 function resetShuffleState() {
   if (isShuffle) {
     isShuffle = false;
@@ -1070,25 +956,21 @@ function resetShuffleState() {
   }
 }
 
-// Helper function to finalize UI update after all songs and their metadata are loaded
 function finalizeSongLoad() {
-  // Sort songs alphabetically by displayName for consistent order
   songs.sort((a, b) => a.displayName.localeCompare(b.displayName));
-  resetShuffleState(); // Reset shuffle when new local songs are loaded
+  resetShuffleState();
   if (songs.length > 0) {
     activePlaylist = songs;
     activeIndex = 0;
     loadMusic(activePlaylist[activeIndex]);
     playMusic();
-    updateSongList(); // Populate the song list in the UI
+    updateSongList();
     highlightCurrentSong();
-    console.log("Total songs loaded:", songs.length);
   } else {
     alert("No supported audio files found after processing.");
   }
 }
 
-// Update the displayed list of songs in the UI (unified for both local and online)
 function updateSongList() {
   const songListEl = document.getElementById("song-list");
   if (!songListEl) {
@@ -1103,7 +985,7 @@ function updateSongList() {
     li.style.cursor = "pointer";
     li.style.padding = "5px";
     li.classList.toggle("active", index === activeIndex);
-    li.dataset.index = index; // Store the index
+    li.dataset.index = index;
 
     li.addEventListener("click", () => {
       activeIndex = index;
@@ -1114,10 +996,8 @@ function updateSongList() {
 
     songListEl.appendChild(li);
   });
-  console.log("Song list updated:", songListEl.children.length, "items");
 }
 
-// Highlight the currently playing song in the UI list (unified)
 function highlightCurrentSong() {
   const songListEl = document.getElementById("song-list");
   if (!songListEl) return;
@@ -1126,21 +1006,17 @@ function highlightCurrentSong() {
   });
 }
 
-// Toggle visibility of the song list sidebar/panel
 document.getElementById("menu-toggle").addEventListener("change", function () {
   const songListEl = document.getElementById("song-list");
   if (songListEl) {
     if (this.checked) {
       songListEl.classList.add("show");
-      console.log("Song list shown");
     } else {
       songListEl.classList.remove("show");
-      console.log("Song list hidden");
     }
   }
 });
 
-// Update the album art display (either actual cover, or random fallback)
 function updateAlbumArt() {
   const song = activePlaylist[activeIndex];
   if (showFallbackImage || !song || !song.cover) {
@@ -1155,20 +1031,19 @@ function updateAlbumArt() {
   }
 }
 
-// Toggle between loop modes (No Loop -> Loop All -> Loop Once)
 function toggleLoopMode() {
   if (!isLoopOnce && !isLoop) {
-    isLoop = true; // Enable Loop All
+    isLoop = true;
     isLoopOnce = false;
-    updateLoopButton("repeat.svg", false); // No dimming
+    updateLoopButton("repeat.svg", false);
   } else if (isLoop) {
     isLoop = false;
-    isLoopOnce = true; // Enable Loop Once
-    updateLoopButton("repeat-1.svg", false); // No dimming
+    isLoopOnce = true;
+    updateLoopButton("repeat-1.svg", false);
   } else if (isLoopOnce) {
     isLoop = false;
-    isLoopOnce = false; // Disable Loop
-    updateLoopButton("repeat-disabled.svg", true); // Dimmed
+    isLoopOnce = false;
+    updateLoopButton("repeat-disabled.svg", true);
   }
   const loopBtn = document.getElementById("loop-shuffle-btn");
   const rect = loopBtn.getBoundingClientRect();
@@ -1180,7 +1055,6 @@ function toggleLoopMode() {
   loopShuffleBurst(x, y);
 }
 
-// Update loop button icon and active state
 function updateLoopButton(iconPath) {
   const icon = document.getElementById("loop-icon");
   if (icon) {
@@ -1197,33 +1071,27 @@ function updateShuffleButton(iconPath) {
   }
 }
 
-// Toggle Shuffle Mode
 function toggleShuffle() {
   isShuffle = !isShuffle;
   updateShuffleButton(
     isShuffle ? "shuffle.svg" : "shuffle-disabled.svg",
-    !isShuffle // Dimmed if shuffle is off
+    !isShuffle
   );
 
   if (isShuffle && activePlaylist.length > 0) {
     const currentSongIndex = activeIndex;
     const indices = Array.from(activePlaylist.keys());
 
-    // Remove current song index from the list to be shuffled
     indices.splice(indices.indexOf(currentSongIndex), 1);
 
-    // Fisher-Yates shuffle on the rest of the indices
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
 
-    // Add the current song's index back to the front of the shuffled list
     shuffledIndices = [currentSongIndex, ...indices];
-    shuffledPlaybackIndex = 0; // Start at the beginning of the new shuffled list
+    shuffledPlaybackIndex = 0;
   } else {
-    // When turning shuffle off, activeIndex already points to the current song.
-    // Just clear the shuffle data.
     shuffledIndices = [];
   }
 
@@ -1237,8 +1105,7 @@ function toggleShuffle() {
   loopShuffleBurst(x, y);
 }
 
-// Initialize shuffle button state on load
-updateShuffleButton("shuffle-disabled.svg", false); // Start dimmed/off
+updateShuffleButton("shuffle-disabled.svg", false);
 
 function loopShuffleBurst(centerX, centerY) {
   const glyphs = [
@@ -1284,20 +1151,14 @@ function loopShuffleBurst(centerX, centerY) {
   setTimeout(() => burstContainer.classList.add("hidden"), 1000);
 }
 
-// --- Tauri-Specific File Loading Logic ---
-
-// Function to load songs from a folder using Tauri backend commands
 async function loadSongsFromFolderTauri() {
-  console.log("Attempting to load songs from folder via Tauri...");
   showLoader("Importing songs…");
   try {
-    // Clean up previous blob URLs to prevent memory leaks
     cleanupBlobUrls();
 
     const filePaths = await invoke("select_and_list_audio_files");
 
     if (!filePaths || filePaths.length === 0) {
-      console.log("No files selected or found by Rust backend.");
       alert(
         "No supported audio files found in the selected folder, or selection was cancelled."
       );
@@ -1306,8 +1167,6 @@ async function loadSongsFromFolderTauri() {
       pauseMusic();
       return;
     }
-
-    console.log("Received file paths from Rust:", filePaths);
 
     songs = [];
     let processed = 0;
@@ -1379,7 +1238,6 @@ async function loadSongsFromFolderTauri() {
         })
       );
 
-      // Yield back to the event loop between batches so the UI stays responsive
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
@@ -1392,7 +1250,6 @@ async function loadSongsFromFolderTauri() {
   }
 }
 
-// Online playlist loader (unified)
 async function loadPlaylist(query) {
   showLoader("Fetching tracks…");
   try {
@@ -1411,41 +1268,33 @@ async function loadPlaylist(query) {
       loadMusic(activePlaylist[activeIndex]);
       playMusic();
     } else {
-      console.warn("No songs returned from search_playlist_and_stream.");
       alert("No songs found for your search.");
     }
   } catch (err) {
-    console.error("Playlist Search Failed:", err);
     alert("Online search failed. Please try again.");
   } finally {
     hideLoader();
   }
 }
 
-// --- Event Listeners ---
-
 playBtn.addEventListener("click", togglePlay);
 prevBtn.addEventListener("click", () => changeMusic(-1));
 nextBtn.addEventListener("click", () => changeMusic(1));
 playerProgress.addEventListener("click", setProgressBar);
 
-// Attach the new Tauri-compatible function to your "Add Music" button
-// Make sure this ID matches your HTML button ID for adding music (e.g., <button id="add-music-button">)
 document
   .getElementById("add-folder-btn")
   .addEventListener("click", loadSongsFromFolderTauri);
 
 shuffleBtn.addEventListener("click", toggleShuffle);
-loopShuffleBtn.addEventListener("click", toggleLoopMode); // This button seems to handle all loop states
+loopShuffleBtn.addEventListener("click", toggleLoopMode);
 
-// Show volume toast message
 function showVolumeToast(volume) {
   const toast = document.getElementById("volume-toast");
   const icon = toast.querySelector("img");
   const bar = document.getElementById("volume-bar");
 
   if (toast && icon && bar) {
-    // Update icon based on volume
     if (volume === 0) {
       icon.src = "icons/mute.svg";
       icon.alt = "Muted";
@@ -1456,15 +1305,13 @@ function showVolumeToast(volume) {
       icon.src = "icons/volume.svg";
       icon.alt = "High Volume";
     }
-    // Update bar width
+
     bar.style.width = `${Math.round(volume * 100)}%`;
 
     toast.style.display = "flex";
 
-    // Cancel any previous anime.js animations
     if (toast._anime) toast._anime.pause();
 
-    // Animate in (pop up with bounce)
     toast._anime = anime({
       targets: toast,
       opacity: [0, 1],
@@ -1479,7 +1326,6 @@ function showVolumeToast(volume) {
       },
     });
 
-    // Hide after delay with fade/slide out
     clearTimeout(toast._timeout);
     toast._timeout = setTimeout(() => {
       if (toast._anime) toast._anime.pause();
@@ -1499,10 +1345,7 @@ function showVolumeToast(volume) {
   }
 }
 
-// Keyboard controls
 document.addEventListener("keydown", (e) => {
-  // Don't hijack keys while the user is typing in an input/textarea/contentEditable
-  // or while the query modal is open — allow spaces in the search box.
   const ae = document.activeElement;
   const isTyping =
     ae &&
@@ -1520,15 +1363,12 @@ document.addEventListener("keydown", (e) => {
     if (currentHowl && currentHowl.playing()) {
       const currentTime = currentHowl.seek();
       if (currentTime > 2) {
-        // Restart the current song
         currentHowl.seek(0);
         currentHowl.play();
       } else {
-        // Go to previous song
         changeMusic(-1);
       }
     } else {
-      // Go to previous song if not playing
       changeMusic(-1);
     }
   } else if (e.code === "ArrowRight") {
@@ -1537,25 +1377,23 @@ document.addEventListener("keydown", (e) => {
     if (currentHowl) {
       const newVol = Math.min(currentHowl.volume() + 0.1, 1);
       currentHowl.volume(newVol);
-      userSettings.volume = newVol; // Save to settings
-      debouncedSaveSettings(); // Persist settings
-      showVolumeToast(newVol); // Show toast message
+      userSettings.volume = newVol;
+      debouncedSaveSettings();
+      showVolumeToast(newVol);
     }
   } else if (e.code === "ArrowDown") {
     if (currentHowl) {
       const newVol = Math.max(currentHowl.volume() - 0.1, 0);
       currentHowl.volume(newVol);
-      userSettings.volume = newVol; // Save to settings
-      debouncedSaveSettings(); // Persist settings
-      showVolumeToast(newVol); // Show toast message
+      userSettings.volume = newVol;
+      debouncedSaveSettings();
+      showVolumeToast(newVol);
     }
   } else if (e.key === "f" || e.key === "F") {
     showFallbackImage = !showFallbackImage;
-    updateAlbumArt(); // Toggle fallback image
+    updateAlbumArt();
   } else if (e.ctrlKey && e.shiftKey && e.key === "B") {
-    // TEMP: Ctrl+Shift+B to test birthday features
     e.preventDefault();
-    console.log("🎂 Testing birthday features...");
     triggerBirthdaySurprise();
   }
 });
@@ -1566,13 +1404,12 @@ function updateMediaSession(song) {
     navigator.mediaSession.metadata = new window.MediaMetadata({
       title: song.displayName || song.title,
       artist: song.artist,
-      album: "", // Optional
+      album: "",
       artwork: artworkUrl
         ? [{ src: artworkUrl, sizes: "512x512", type: "image/png" }]
         : [],
     });
 
-    // Optional: Handle media keys for play/pause/next/prev
     navigator.mediaSession.setActionHandler("play", playMusic);
     navigator.mediaSession.setActionHandler("pause", pauseMusic);
     navigator.mediaSession.setActionHandler("previoustrack", () =>
@@ -1582,8 +1419,6 @@ function updateMediaSession(song) {
   }
 }
 
-// Online mode Codes
-// Online mode: Ctrl+O opens a custom query modal with video background
 (function initQueryModal() {
   const modal = document.getElementById("query-modal");
   const input = document.getElementById("query-input");
@@ -1645,7 +1480,6 @@ function updateMediaSession(song) {
     });
   if (input)
     input.addEventListener("keydown", (e) => {
-      // Allow normal typing, including spaces. Only intercept Enter/Escape.
       if (e.key === "Enter") {
         e.preventDefault();
         submitQuery();
@@ -1659,7 +1493,6 @@ function updateMediaSession(song) {
   document.addEventListener("keydown", async (e) => {
     if (e.ctrlKey && e.key.toLowerCase() === "o") {
       e.preventDefault();
-      // keep the magical burst for flair
       const x = e.clientX || window.innerWidth / 2;
       const y = e.clientY || window.innerHeight / 2;
       magicalBurst(x, y);
@@ -1700,7 +1533,6 @@ function updateMediaSession(song) {
         easing: "easeInOutQuad",
       });
 
-      // Keep label visible for the configured delay, then hide and open modal
       await new Promise((res) =>
         setTimeout(res, CONFIG.QUERY_MODAL_OPEN_DELAY)
       );
@@ -1739,11 +1571,7 @@ function magicalBurst(x, y) {
   });
 }
 
-// ====================== EASTER EGG PACK ======================
-
-// --- Magical Rain Mode ---
-
-let originalBodyBackground = ""; // Variable to store the original background style
+let originalBodyBackground = "";
 
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey && e.key.toLowerCase() === "k") {
@@ -1752,47 +1580,38 @@ document.addEventListener("keydown", function (e) {
       document.documentElement.classList.contains("rain-mode");
 
     if (isRainActive) {
-      // Store the original background before changing it
       originalBodyBackground = document.body.style.background;
-
-      // Select a random rain video from CONFIG
       const randomVideo = randomFromArray(CONFIG.RAIN_VIDEOS);
-
-      addRainVideoBackground(randomVideo); // Pass the video path
+      addRainVideoBackground(randomVideo);
     } else {
-      removeRainVideoBackground(); // Call function to remove video background
-      // Restore the original background
+      removeRainVideoBackground();
       document.body.style.background = originalBodyBackground;
     }
   }
 });
 
-// Insert rain video as background when rain-mode activates
 function addRainVideoBackground(videoPath) {
   if (!document.getElementById("rain-video")) {
     const video = document.createElement("video");
     video.id = "rain-video";
-    video.src = videoPath; // Use the passed video path
+    video.src = videoPath;
     video.autoplay = true;
     video.loop = true;
-    video.muted = false; // UNMUTE to use video's embedded audio
-    video.volume = 0.3; // Set volume for the video's audio
+    video.muted = false;
+    video.volume = 0.3;
     video.style.position = "fixed";
     video.style.top = "0";
     video.style.left = "0";
     video.style.width = "100%";
     video.style.height = "100%";
     video.style.objectFit = "cover";
-    video.style.zIndex = "-1"; // Send it behind content
-    video.style.opacity = "1"; // Make it fully visible
+    video.style.zIndex = "-1";
+    video.style.opacity = "1";
     document.body.appendChild(video);
-
-    // Ensure body has no background or is transparent to show the video
     document.body.style.background = "transparent";
   }
 }
 
-// Remove rain video background when mode deactivates
 function removeRainVideoBackground() {
   const video = document.getElementById("rain-video");
   if (video) video.remove();
@@ -1805,71 +1624,51 @@ function triggerLightning() {
   setTimeout(() => flash.remove(), 500);
 }
 
-// Initialize lightning interval properly to avoid memory leaks
 function initializeLightningInterval() {
   if (lightningInterval) {
     clearInterval(lightningInterval);
   }
   lightningInterval = setInterval(() => {
     if (document.documentElement.classList.contains("rain-mode")) {
-      if (Math.random() < 0.2)
-        // occasional lightning
-        triggerLightning();
+      if (Math.random() < 0.2) triggerLightning();
     }
   }, 5000);
 }
 
-// Start the lightning interval
 initializeLightningInterval();
 
-// --- Comprehensive Cleanup Functions ---
-
-// Master cleanup function to prevent memory leaks
 function performCompleteCleanup() {
-  console.log("Performing complete cleanup to prevent memory leaks...");
-
-  // Clean up blob URLs
   cleanupBlobUrls();
 
-  // Clean up Howl instance
   if (currentHowl) {
     currentHowl.unload();
     currentHowl = null;
   }
 
-  // Clean up rain video (audio is embedded in video)
   const rainVideo = document.getElementById("rain-video");
   if (rainVideo) {
     rainVideo.pause();
     rainVideo.remove();
   }
 
-  // Clear lightning interval
   if (lightningInterval) {
     clearInterval(lightningInterval);
     lightningInterval = null;
   }
 
-  // Clear any remaining timeouts (toast timeout)
   const toast = document.getElementById("volume-toast");
   if (toast && toast._timeout) {
     clearTimeout(toast._timeout);
   }
-
-  console.log("Cleanup completed successfully");
 }
 
-// Add cleanup on page unload to prevent memory leaks
 window.addEventListener("beforeunload", performCompleteCleanup);
 
-// Add cleanup on visibility change (when tab becomes hidden)
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
-    // Pause audio when tab is hidden to save resources
     if (currentHowl && currentHowl.playing()) {
       currentHowl.pause();
     }
-    // Pause rain video audio
     const rainVideo = document.getElementById("rain-video");
     if (rainVideo && !rainVideo.paused) {
       rainVideo.pause();
@@ -1877,11 +1676,9 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-// Initialize app settings on load
 (async function initializeApp() {
   try {
     await loadUserSettings();
-    console.log("App initialized with settings:", userSettings);
   } catch (error) {
     console.error("Failed to initialize app:", error);
   }
