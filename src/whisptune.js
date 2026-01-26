@@ -5,17 +5,14 @@
  * ║  A beautiful, feature-rich music player built with Tauri + JavaScript        ║
  * ║                                                                              ║
  * ║  Features:                                                                   ║
- * ║  - Local audio file playback (MP3, WAV, OGG, FLAC, M4A)                     ║
- * ║  - Online streaming via YouTube (yt-dlp)                                    ║
- * ║  - Shuffle, Loop, and Repeat modes                                          ║
+ * ║  - Local audio file playback (MP3, WAV, OGG, FLAC, M4A)                      ║
+ * ║  - Online streaming via YouTube (yt-dlp)                                     ║
+ * ║  - Shuffle, Loop, and Repeat modes                                           ║
  * ║  - Dynamic time-based themes and backgrounds                                 ║
  * ║  - Birthday celebration mode                                                 ║
- * ║  - Rain ambiance mode (Ctrl+K)                                              ║
- * ║  - Media Session API integration                                            ║
- * ║  - Keyboard shortcuts for playback control                                  ║
- * ║                                                                              ║
- * ║  Author: UchihaPaul                                                          ║
- * ║  Repository: https://github.com/UchihaPaul/WhispTune                        ║
+ * ║  - Rain ambiance mode (Ctrl+K)                                               ║
+ * ║  - Media Session API integration                                             ║
+ * ║  - Keyboard shortcuts for playback control                                   ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
