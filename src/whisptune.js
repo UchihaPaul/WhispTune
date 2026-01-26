@@ -236,6 +236,22 @@ function setTimeBasedVideo() {
 setTimeBasedVideo();
 setInterval(setTimeBasedVideo, CONFIG.VIDEO_UPDATE_INTERVAL);
 
+// Handle video loading errors (e.g., codec not supported on Linux)
+const buttonVideo = document.querySelector(".button-video");
+if (buttonVideo) {
+  buttonVideo.addEventListener("error", function () {
+    this.style.display = "none";
+  }, true);
+  
+  // Also listen on source element for better error catching
+  const videoSource = buttonVideo.querySelector("source");
+  if (videoSource) {
+    videoSource.addEventListener("error", function () {
+      buttonVideo.style.display = "none";
+    });
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // BIRTHDAY CELEBRATION SYSTEM
 // Asks for user's birthday on first launch, then celebrates annually
