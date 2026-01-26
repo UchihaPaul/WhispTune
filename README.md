@@ -16,7 +16,7 @@
 
 ---
 
-A modern, offline-first desktop music player crafted for those who crave performance, beauty, and simplicity. Built with the power of Rust and a sleek Vanilla JavaScript interface, WhispTune transforms your music experience—whether it's offline bliss or online discovery.
+An offline-first music player crafted for quiet focus and effortless listening
 
 ---
 
