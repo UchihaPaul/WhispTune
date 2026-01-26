@@ -1,56 +1,84 @@
-# 🎵 WhispTune: Your Personal Audio Sanctuary
+<div align="center">
 
-> *Where melodies drift like the wind...*
+<img src="src-tauri/icons/128x128@2x.png" alt="WhispTune Logo" width="150" />
 
-WhispTune is a **modern, offline-first desktop music player** crafted for music lovers who crave performance, beauty, and simplicity. Built with the **power of Rust** and a **sleek Vanilla JavaScript** interface, WhispTune transforms your music experience whether it’s offline bliss or online discovery.
+# WhispTune
+
+**Your Personal Audio Sanctuary**
+
+*Where melodies drift like the wind*
+
+[![Built with Tauri](https://img.shields.io/badge/Built%20with-Tauri-blue?style=flat-square)](https://tauri.app/)
+[![Rust](https://img.shields.io/badge/Backend-Rust-orange?style=flat-square)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE.txt)
+
+</div>
 
 ---
 
-## ✨ Features That Sing
+A modern, offline-first desktop music player crafted for those who crave performance, beauty, and simplicity. Built with the power of Rust and a sleek Vanilla JavaScript interface, WhispTune transforms your music experience—whether it's offline bliss or online discovery.
 
-### 🎼 Effortless Local Music Import
-Just point WhispTune to your music folders and it’ll gracefully collect and organize audio files like:
-- `.mp3`, `.wav`, `.ogg`, `.flac`, `.m4a`
+---
 
-### 🖼️ Smart Metadata & Album Art
-No more mystery tracks! WhispTune extracts:
+## Table of Contents
+
+- [Features](#features)
+- [Online Streaming](#online-streaming)
+- [Getting Started](#getting-started)
+- [Building for Production](#building-for-production)
+- [Tech Stack](#tech-stack)
+- [Acknowledgements](#acknowledgements)
+
+---
+
+## Features
+
+### Local Music Import
+Point WhispTune to your music folders and it will gracefully collect and organize your audio files:
+- `.mp3` `.wav` `.ogg` `.flac` `.m4a`
+
+### Smart Metadata Extraction
+No more mystery tracks. WhispTune automatically extracts:
 - Song titles
-- Artists
-- Album art  
+- Artist information
+- Album artwork
 
-### 🎚️ Intuitive Playback Controls
-Control your vibes with:
-- Shuffle, Loop All, Loop Once
-- Media key support – manage playback *without switching windows*
+### Intuitive Playback Controls
+Take full control of your listening experience:
+- Shuffle, Loop All, Loop Once modes
+- Media key support—manage playback without switching windows
 
 ---
 
-## 🌐 Dive Deeper with Online Mode
+## Online Streaming
 
-**Stream YouTube audio** (videos & playlists) directly in WhispTune using the awesome `yt-dlp`.
+Stream YouTube audio directly in WhispTune using `yt-dlp`.
 
-> ⚠️ **Heads Up:** yt-dlp is not bundled due to YouTube's policies. Set it up manually to enable streaming:
+> **Note:** yt-dlp is not bundled due to YouTube's policies. Manual setup is required to enable streaming.
 
-### 🛠️ Setup Instructions:
+### Setup
+
 ```bash
-# Create a directory to store yt-dlp
+# Create directory for yt-dlp
 mkdir bin
 cd bin
 
-# Download yt-dlp (For Windows)
+# Download yt-dlp (Windows)
 curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe -o yt-dlp
 ```
 
 ---
 
-## 🧑‍💻 Developer's Quickstart
+## Getting Started
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/)
 - [Rust](https://www.rust-lang.org/)
 - [Tauri CLI](https://tauri.app/)
 
-### 🚀 Get Started
+### Installation
+
 ```bash
 git clone https://github.com/UchihaPaul/WhispTune.git
 cd WhispTune
@@ -58,34 +86,43 @@ npm install
 npm run tauri dev
 ```
 
-### 📦 Build for Production
+---
+
+## Building for Production
+
 ```bash
 npm run tauri build
 ```
-> Final app found in: `src-tauri/target/release/`
+
+The compiled application will be available in `src-tauri/target/release/`
 
 ---
 
-## 🧠 Under the Hood
+## Tech Stack
 
-| Layer        | Tech Stack                                     |
-|--------------|------------------------------------------------|
-| **Backend**  | Rust                                            |
-| **Frontend** | Vanilla JS, HTML, CSS                          |
-| **Framework**| Tauri                                           |
-| **Audio Engine** | Howler.js                                 |
-| **Metadata Parsing** | jsmediatags (JS) & lofty-rs (Rust)     |
-| **Animations** | Anime.js                                    |
-
----
-
-## 💡 Acknowledgements
-
-Huge shoutout to the AI copilots who helped bring WhispTune to life:
-**Qwen, ChatGPT, DeepSeek, GitHub Copilot, Google Gemini**
+| Component          | Technology                        |
+|--------------------|-----------------------------------|
+| Backend            | Rust                              |
+| Frontend           | Vanilla JS, HTML, CSS             |
+| Framework          | Tauri                             |
+| Audio Engine       | Howler.js                         |
+| Metadata Parsing   | jsmediatags (JS), lofty-rs (Rust) |
+| Animations         | Anime.js                          |
 
 ---
 
-> 🎶 WhispTune isn't just a player - it's your **safe space for sound**.
+## Acknowledgements
 
-> 🥚 *Psst... WhispTune carry secrets. Try a few key combos and clicks - you might unlock a little magic inside WhispTune.*
+Special thanks to the AI assistants that contributed to WhispTune's development:
+
+**Qwen** · **ChatGPT** · **DeepSeek** · **GitHub Copilot** · **Google Gemini**
+
+---
+
+<div align="center">
+
+*WhispTune is more than a player—it's your safe space for sound.*
+
+<sub>Hidden features await the curious. Explore key combinations and discover the magic within.</sub>
+
+</div>
