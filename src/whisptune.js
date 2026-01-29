@@ -756,14 +756,13 @@ function createBirthdayConfetti() {
     "#fd79a8",
   ];
 
-  // Memory optimized: reduced particle count from 50 to 25
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 50; i++) {
     const confetti = document.createElement("div");
     confetti.textContent =
       confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
     confetti.style.cssText = `
             position: absolute;
-            font-size: ${Math.random() * 18 + 12}px;
+            font-size: ${Math.random() * 20 + 15}px;
             color: ${colors[Math.floor(Math.random() * colors.length)]};
             user-select: none;
             pointer-events: none;
@@ -774,19 +773,19 @@ function createBirthdayConfetti() {
     anime({
       targets: confetti,
       translateX: [
-        { value: () => anime.random(-80, 80), duration: 800 },
-        { value: () => anime.random(-80, 80), duration: 800 },
+        { value: () => anime.random(-100, 100), duration: 1000 },
+        { value: () => anime.random(-100, 100), duration: 1000 },
       ],
-      translateY: [0, window.innerHeight + 50],
+      translateY: [0, window.innerHeight + 100],
       rotate: () => anime.random(0, 360),
       scale: [
-        { value: 1.1, duration: 250 },
-        { value: 0.7, duration: 250 },
-        { value: 0, duration: 300 },
+        { value: 1.2, duration: 300 },
+        { value: 0.8, duration: 300 },
+        { value: 0, duration: 400 },
       ],
       opacity: [1, 1, 0],
-      duration: 3000,
-      delay: i * 80,
+      duration: 4000,
+      delay: i * 100,
       easing: "easeOutQuart",
       complete: () => confetti.remove(),
     });
@@ -794,7 +793,7 @@ function createBirthdayConfetti() {
 
   setTimeout(() => {
     confettiContainer.remove();
-  }, 5000);
+  }, 8000);
 }
 
 function createBirthdayPhotoFrame() {
@@ -1397,36 +1396,35 @@ function toggleShuffle() {
 updateShuffleButton("shuffle-disabled.svg", false);
 
 function loopShuffleBurst(centerX, centerY) {
-  const glyphs = ["🦁", "🌲", "❄️", "🕯️", "✨", "🍃", "🌌", "🎶"];
+  const glyphs = ["🦁", "🌲", "❄️", "🕯️", "✨", "🍃", "🌌", "⛅", "🌀", "🦢", "🎶",];
   const burstContainer = document.getElementById("loop-burst");
   burstContainer.innerHTML = "";
   burstContainer.classList.remove("hidden");
   burstContainer.style.top = `${centerY}px`;
   burstContainer.style.left = `${centerX}px`;
 
-  // Memory optimized: reduced from 10 to 6 particles
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 10; i++) {
     const particle = document.createElement("div");
     particle.className = "loop-particle";
     particle.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
     burstContainer.appendChild(particle);
 
     const angle = Math.random() * 2 * Math.PI;
-    const distance = 35 + Math.random() * 25;
+    const distance = 40 + Math.random() * 30;
 
     anime({
       targets: particle,
       translateX: Math.cos(angle) * distance,
       translateY: Math.sin(angle) * distance,
-      scale: [1, 0.3],
+      scale: [1.2, 0.4],
       opacity: [1, 0],
-      duration: 600 + Math.random() * 200,
+      duration: 800 + Math.random() * 400,
       easing: "easeOutExpo",
       complete: () => particle.remove(),
     });
   }
 
-  setTimeout(() => burstContainer.classList.add("hidden"), 800);
+  setTimeout(() => burstContainer.classList.add("hidden"), 1000);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1828,9 +1826,8 @@ function updateMediaSession(song) {
       burst.classList.remove("hidden");
       label.classList.remove("hidden");
 
-      const glyphs = ["🦁", "❄️", "🌌", "🕯️", "🍃", "🌲"];
-      // Memory optimized: reduced from 18 to 10 particles
-      const numParticles = 10;
+      const glyphs = ["🦁", "❄️", "🌌", "🕯️", "🍃", "🌲", "🦢", "🌠"];
+      const numParticles = 18;
       for (let i = 0; i < numParticles; i++) {
         const particle = document.createElement("div");
         particle.classList.add("burst-particle");
@@ -1839,14 +1836,14 @@ function updateMediaSession(song) {
         burst.appendChild(particle);
 
         const angle = Math.random() * 2 * Math.PI;
-        const radius = 60 + Math.random() * 40;
+        const radius = 80 + Math.random() * 60;
         anime({
           targets: particle,
           translateX: Math.cos(angle) * radius,
           translateY: Math.sin(angle) * radius,
           opacity: [1, 0],
-          scale: () => anime.random(1, 1.5),
-          duration: 1000 + Math.random() * 300,
+          scale: () => anime.random(1, 2),
+          duration: 1300 + Math.random() * 500,
           easing: "easeOutExpo",
           complete: () => particle.remove(),
         });
@@ -1854,8 +1851,8 @@ function updateMediaSession(song) {
       anime({
         targets: "#secret-label",
         opacity: [0, 1, 0],
-        translateY: [-15, 0, -8],
-        duration: 1800,
+        translateY: [-20, 0, -10],
+        duration: 2400,
         easing: "easeInOutQuad",
       });
 
@@ -1871,13 +1868,12 @@ function updateMediaSession(song) {
 
 function magicalBurst(x, y) {
   const particles = [];
-  // Memory optimized: reduced from 20 to 10 particles
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 20; i++) {
     const particle = document.createElement("div");
     particle.classList.add("magic-particle");
     document.body.appendChild(particle);
 
-    const size = Math.random() * 6 + 6;
+    const size = Math.random() * 8 + 8;
     particle.style.width = `${size}px`;
     particle.style.height = `${size}px`;
     particle.style.left = `${x}px`;
@@ -1888,12 +1884,12 @@ function magicalBurst(x, y) {
 
   anime({
     targets: particles,
-    translateX: () => anime.random(-80, 80),
-    translateY: () => anime.random(-80, 80),
-    scale: () => anime.random(1, 1.5),
+    translateX: () => anime.random(-100, 100),
+    translateY: () => anime.random(-100, 100),
+    scale: () => anime.random(1, 2),
     opacity: [1, 0],
     easing: "easeOutExpo",
-    duration: 900,
+    duration: 1200,
     complete: () => particles.forEach((p) => p.remove()),
   });
 }
