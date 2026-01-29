@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
- * ║                              WhispTune Music Player                          ║
+ * ║                         WhispTune Music Player v3.0.0                        ║
  * ║                                                                              ║
  * ║  A beautiful, feature-rich music player built with Tauri + JavaScript        ║
  * ║                                                                              ║
@@ -13,6 +13,7 @@
  * ║  - Rain ambiance mode (Ctrl+K)                                               ║
  * ║  - Media Session API integration                                             ║
  * ║  - Keyboard shortcuts for playback control                                   ║
+ * ║  - Magical Forest Cursor (Ghibli/Narnia Theme) (v3.0)                        ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -184,6 +185,139 @@ window.addEventListener(
   },
   { passive: false }
 );
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAGICAL FOREST CURSOR v3.0 - Studio Ghibli / Narnia Inspired
+// Features: Floating leaf emoji, enchanted glow, sparkle trail with fireflies
+// ─────────────────────────────────────────────────────────────────────────────
+
+const cursorMain = document.getElementById("cursor-main");
+const cursorGlow = document.getElementById("cursor-glow");
+
+let mouseX = 0, mouseY = 0;
+let glowX = 0, glowY = 0;
+
+// Array of magical forest emojis for variety
+const forestEmojis = ["🍃", "🌿", "🍂", "🌸", "✨", "🦋"];
+const sparkleEmojis = ["✨", "⭐", "🌟", "💫", "🍃"];
+let currentLeafIndex = 0;
+
+// Smooth cursor following animation
+function animateCursor() {
+  // Main cursor follows mouse instantly
+  if (cursorMain) {
+    cursorMain.style.left = `${mouseX}px`;
+    cursorMain.style.top = `${mouseY}px`;
+  }
+  
+  // Glow follows with smooth delay (enchanted effect)
+  glowX += (mouseX - glowX) * 0.12;
+  glowY += (mouseY - glowY) * 0.12;
+  
+  if (cursorGlow) {
+    cursorGlow.style.left = `${glowX}px`;
+    cursorGlow.style.top = `${glowY}px`;
+  }
+  
+  requestAnimationFrame(animateCursor);
+}
+
+// Track mouse position and create magical effects
+document.addEventListener("mousemove", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  
+  // Create sparkle trail occasionally
+  if (Math.random() < 0.15) {
+    createSparkle(e.clientX, e.clientY);
+  }
+  
+  // Create firefly occasionally
+  if (Math.random() < 0.05) {
+    createFirefly(e.clientX, e.clientY);
+  }
+});
+
+// Handle click effects - leaf spins
+document.addEventListener("mousedown", () => {
+  cursorMain?.classList.add("clicking");
+  cursorGlow?.classList.add("clicking");
+  
+  // Change leaf emoji on click for variety
+  currentLeafIndex = (currentLeafIndex + 1) % forestEmojis.length;
+  const leafEl = cursorMain?.querySelector(".cursor-leaf");
+  if (leafEl) {
+    leafEl.textContent = forestEmojis[currentLeafIndex];
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  cursorMain?.classList.remove("clicking");
+  cursorGlow?.classList.remove("clicking");
+});
+
+// Handle hover effects on interactive elements
+const hoverElements = "button, a, .control-icon, .video-button, #song-list li, .toggle, input, .player-img";
+
+document.addEventListener("mouseover", (e) => {
+  if (e.target.matches(hoverElements) || e.target.closest(hoverElements)) {
+    cursorMain?.classList.add("hovering");
+    cursorGlow?.classList.add("hovering");
+  }
+});
+
+document.addEventListener("mouseout", (e) => {
+  if (e.target.matches(hoverElements) || e.target.closest(hoverElements)) {
+    cursorMain?.classList.remove("hovering");
+    cursorGlow?.classList.remove("hovering");
+  }
+});
+
+// Create magical sparkle particles
+function createSparkle(x, y) {
+  const sparkle = document.createElement("div");
+  sparkle.className = "cursor-sparkle";
+  sparkle.textContent = sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)];
+  sparkle.style.left = `${x + (Math.random() - 0.5) * 20}px`;
+  sparkle.style.top = `${y + (Math.random() - 0.5) * 20}px`;
+  sparkle.style.color = Math.random() > 0.5 ? "#ffd700" : "#90EE90";
+  document.body.appendChild(sparkle);
+  
+  anime({
+    targets: sparkle,
+    translateY: [0, -30 - Math.random() * 20],
+    translateX: (Math.random() - 0.5) * 40,
+    scale: [1, 0],
+    opacity: [0.8, 0],
+    rotate: Math.random() * 360,
+    duration: 800 + Math.random() * 400,
+    easing: "easeOutExpo",
+    complete: () => sparkle.remove()
+  });
+}
+
+// Create firefly particles (Ghibli-style)
+function createFirefly(x, y) {
+  const firefly = document.createElement("div");
+  firefly.className = "cursor-firefly";
+  firefly.style.left = `${x + (Math.random() - 0.5) * 30}px`;
+  firefly.style.top = `${y + (Math.random() - 0.5) * 30}px`;
+  document.body.appendChild(firefly);
+  
+  anime({
+    targets: firefly,
+    translateY: [0, -50 - Math.random() * 50],
+    translateX: () => [(Math.random() - 0.5) * 60, (Math.random() - 0.5) * 80],
+    scale: [1, 1.5, 0],
+    opacity: [0, 1, 0],
+    duration: 1500 + Math.random() * 1000,
+    easing: "easeInOutSine",
+    complete: () => firefly.remove()
+  });
+}
+
+// Start cursor animation
+animateCursor();
 
 (function setRandomDefaultImages() {
   const randomImg = randomFromArray(CONFIG.DEFAULT_IMAGES);
@@ -1502,7 +1636,6 @@ function showVolumeToast(volume) {
 // ─────────────────────────────────────────────────────────────────────────────
 // KEYBOARD SHORTCUTS - Global hotkey handling
 // Space: Play/Pause | Arrows: Skip/Volume | F: Toggle Fallback Image
-// Ctrl+Shift+B: Trigger birthday (testing)
 // ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener("keydown", (e) => {
   const ae = document.activeElement;
@@ -1513,6 +1646,7 @@ document.addEventListener("keydown", (e) => {
       ae.isContentEditable);
   const qm = document.getElementById("query-modal");
   const isQueryModalOpen = qm && !qm.classList.contains("hidden");
+  
   if (isTyping || isQueryModalOpen) return;
 
   if (e.code === "Space") {
@@ -1551,9 +1685,6 @@ document.addEventListener("keydown", (e) => {
   } else if (e.key === "f" || e.key === "F") {
     showFallbackImage = !showFallbackImage;
     updateAlbumArt();
-  } else if (e.ctrlKey && e.shiftKey && e.key === "B") {
-    e.preventDefault();
-    triggerBirthdaySurprise();
   }
 });
 
@@ -1872,6 +2003,15 @@ document.addEventListener("visibilitychange", () => {
 (async function initializeApp() {
   try {
     await loadUserSettings();
+    
+    // v3.0: Add version badge
+    const versionBadge = document.createElement("div");
+    versionBadge.className = "version-badge";
+    versionBadge.textContent = "v3.0.0";
+    versionBadge.title = "WhispTune v3.0.0";
+    document.body.appendChild(versionBadge);
+    
+    console.log("WhispTune v3.0.0 initialized successfully!");
   } catch (error) {
     console.error("Failed to initialize app:", error);
   }

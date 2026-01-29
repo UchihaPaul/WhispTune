@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "WhispTune",
-  "version": "2.2.0",
-  "identifier": "com.whisptune.app.v2",
+  "version": "3.0.0",
+  "identifier": "com.whisptune.app.v3",
   "build": {
     "frontendDist": "../src"
   },

@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════════╗
- * ║                         WhispTune - Stylesheet                               ║
+ * ║                         WhispTune - Stylesheet v3.0.0                        ║
  * ║                                                                              ║
  * ║  A glassmorphic, elegant design with smooth animations                       ║
  * ║                                                                              ║
@@ -8,7 +8,7 @@
  * ║  - Glassmorphism with backdrop-filter blur effects                          ║
  * ║  - CSS custom properties for easy theming                                   ║
  * ║  - Smooth transitions and micro-interactions                                ║
- * ║  - Custom scrollbar styling                                                 ║
+ * ║  - Custom animated cursor with trail effect (v3.0)                          ║
  * ║  - Responsive design considerations                                          ║
  * ║  - Reduced motion support for accessibility                                 ║
  * ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -103,6 +103,7 @@ body {
 body,
 * {
   user-select: none;
+  cursor: none; /* Hide default cursor for custom cursor v3.0 */
 }
 
 html {
@@ -1581,15 +1582,10 @@ html {
   transform: translateY(-2px);
 }
 
-.night-theme .query-modal-content {
-  background: rgba(20, 22, 40, 0.85);
-  border-color: rgba(78, 84, 200, 0.4);
-}
-
 /* ═══════════════════════════════════════════════════════════════════════════════
    BIRTHDAY CELEBRATION - Special styles for birthday mode
    Features: Rainbow gradient frame, sparkle effects, badge, toast
-   Triggered on user's birthday or with Ctrl+Shift+B
+   Triggered on user's birthday 
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* Rainbow animated border around album art */
@@ -1787,4 +1783,161 @@ html {
 .birthday-badge-close:hover {
   background: rgba(255, 255, 255, 0.35);
   transform: scale(1.1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   WHISPTUNE v3.0.0 - NEW FEATURES
+   Magical Forest Cursor (Ghibli/Narnia Theme)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MAGICAL FOREST CURSOR v3.0 - Studio Ghibli / Narnia Inspired
+   Features: Floating leaf, enchanted glow, magical sparkle trail
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.cursor-main {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease;
+  filter: drop-shadow(0 2px 8px rgba(139, 195, 74, 0.6));
+}
+
+.cursor-leaf {
+  font-size: 24px;
+  display: block;
+  animation: leafFloat 3s ease-in-out infinite, leafSpin 8s linear infinite;
+  transform-origin: center center;
+}
+
+@keyframes leafFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-3px) rotate(-5deg); }
+  50% { transform: translateY(-1px) rotate(0deg); }
+  75% { transform: translateY(-4px) rotate(5deg); }
+}
+
+@keyframes leafSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.cursor-main.clicking .cursor-leaf {
+  animation: leafClick 0.3s ease;
+  filter: brightness(1.5);
+}
+
+@keyframes leafClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.7) rotate(180deg); }
+  100% { transform: scale(1) rotate(360deg); }
+}
+
+.cursor-main.hovering .cursor-leaf {
+  font-size: 28px;
+  filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
+  animation: leafHover 0.5s ease-in-out infinite;
+}
+
+@keyframes leafHover {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(10deg); }
+}
+
+/* Enchanted Glow Ring */
+.cursor-glow {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, 
+    rgba(139, 195, 74, 0.15) 0%, 
+    rgba(76, 175, 80, 0.08) 40%, 
+    transparent 70%);
+  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.cursor-glow.clicking {
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle,
+    rgba(255, 215, 0, 0.4) 0%,
+    rgba(255, 193, 7, 0.2) 40%,
+    transparent 70%);
+}
+
+.cursor-glow.hovering {
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(circle,
+    rgba(255, 215, 0, 0.2) 0%,
+    rgba(139, 195, 74, 0.15) 40%,
+    transparent 70%);
+}
+
+/* Magical Sparkle Trail */
+.cursor-sparkle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99997;
+  font-size: 12px;
+  transform: translate(-50%, -50%);
+  opacity: 0.8;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+/* Firefly particles for forest magic */
+.cursor-firefly {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #fffacd, #ffd700);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99996;
+  box-shadow: 0 0 8px #ffd700, 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+/* Version badge */
+.version-badge {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  z-index: 100;
+  transition: color 0.2s ease;
+}
+
+.version-badge:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Enhanced hover effects for all buttons */
+button:hover,
+.control-icon:hover {
+  cursor: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-main,
+  .cursor-glow,
+  .cursor-leaf {
+    animation: none !important;
+  }
 }
