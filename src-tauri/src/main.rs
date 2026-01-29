@@ -1,7 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use lofty::{file::TaggedFileExt, prelude::Accessor, probe::Probe, tag::{Tag, TagType}};
-use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
@@ -161,15 +160,12 @@ async fn get_settings_path(app_handle: &AppHandle) -> std::result::Result<PathBu
 async fn select_and_list_audio_files(app_handle: AppHandle) -> Result<Vec<AudioFile>> {
     let folder_path = pick_folder(&app_handle)?;
 
-    let entries: Vec<_> = WalkDir::new(&folder_path)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .filter(|entry| entry.path().is_file())
-        .collect();
-
+    // Stream processing - don't collect all entries first
     let audio_files = task::spawn_blocking(move || {
-        entries
-            .par_iter()
+        WalkDir::new(&folder_path)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|entry| entry.path().is_file())
             .filter_map(|entry| process_audio_entry(entry.path()))
             .collect::<Vec<_>>()
     })

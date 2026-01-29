@@ -189,6 +189,7 @@ window.addEventListener(
 // ─────────────────────────────────────────────────────────────────────────────
 // MAGICAL FOREST CURSOR v3.0 - Studio Ghibli / Narnia Inspired
 // Features: Floating leaf emoji, enchanted glow, sparkle trail with fireflies
+// OPTIMIZED: Limited particle count, throttled creation, pooled elements
 // ─────────────────────────────────────────────────────────────────────────────
 
 const cursorMain = document.getElementById("cursor-main");
@@ -201,6 +202,16 @@ let glowX = 0, glowY = 0;
 const forestEmojis = ["🍃", "🌿", "🍂", "🌸", "✨", "🦋"];
 const sparkleEmojis = ["✨", "⭐", "🌟", "💫", "🍃"];
 let currentLeafIndex = 0;
+
+// Memory optimization: limit active particles
+const MAX_SPARKLES = 8;
+const MAX_FIREFLIES = 4;
+let activeSparkles = 0;
+let activeFireflies = 0;
+let lastSparkleTime = 0;
+let lastFireflyTime = 0;
+const SPARKLE_THROTTLE = 100; // ms between sparkles
+const FIREFLY_THROTTLE = 300; // ms between fireflies
 
 // Smooth cursor following animation
 function animateCursor() {
@@ -222,18 +233,22 @@ function animateCursor() {
   requestAnimationFrame(animateCursor);
 }
 
-// Track mouse position and create magical effects
+// Track mouse position and create magical effects (throttled)
 document.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
   
-  // Create sparkle trail occasionally
-  if (Math.random() < 0.15) {
+  const now = performance.now();
+  
+  // Create sparkle trail occasionally (throttled + limited)
+  if (Math.random() < 0.12 && activeSparkles < MAX_SPARKLES && now - lastSparkleTime > SPARKLE_THROTTLE) {
+    lastSparkleTime = now;
     createSparkle(e.clientX, e.clientY);
   }
   
-  // Create firefly occasionally
-  if (Math.random() < 0.05) {
+  // Create firefly occasionally (throttled + limited)
+  if (Math.random() < 0.03 && activeFireflies < MAX_FIREFLIES && now - lastFireflyTime > FIREFLY_THROTTLE) {
+    lastFireflyTime = now;
     createFirefly(e.clientX, e.clientY);
   }
 });
@@ -273,8 +288,9 @@ document.addEventListener("mouseout", (e) => {
   }
 });
 
-// Create magical sparkle particles
+// Create magical sparkle particles (memory optimized)
 function createSparkle(x, y) {
+  activeSparkles++;
   const sparkle = document.createElement("div");
   sparkle.className = "cursor-sparkle";
   sparkle.textContent = sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)];
@@ -285,19 +301,23 @@ function createSparkle(x, y) {
   
   anime({
     targets: sparkle,
-    translateY: [0, -30 - Math.random() * 20],
-    translateX: (Math.random() - 0.5) * 40,
+    translateY: [0, -25 - Math.random() * 15],
+    translateX: (Math.random() - 0.5) * 30,
     scale: [1, 0],
-    opacity: [0.8, 0],
-    rotate: Math.random() * 360,
-    duration: 800 + Math.random() * 400,
+    opacity: [0.7, 0],
+    rotate: Math.random() * 180,
+    duration: 600 + Math.random() * 200,
     easing: "easeOutExpo",
-    complete: () => sparkle.remove()
+    complete: () => {
+      sparkle.remove();
+      activeSparkles--;
+    }
   });
 }
 
-// Create firefly particles (Ghibli-style)
+// Create firefly particles (memory optimized)
 function createFirefly(x, y) {
+  activeFireflies++;
   const firefly = document.createElement("div");
   firefly.className = "cursor-firefly";
   firefly.style.left = `${x + (Math.random() - 0.5) * 30}px`;
@@ -306,13 +326,16 @@ function createFirefly(x, y) {
   
   anime({
     targets: firefly,
-    translateY: [0, -50 - Math.random() * 50],
-    translateX: () => [(Math.random() - 0.5) * 60, (Math.random() - 0.5) * 80],
-    scale: [1, 1.5, 0],
+    translateY: [0, -40 - Math.random() * 30],
+    translateX: (Math.random() - 0.5) * 50,
+    scale: [1, 1.3, 0],
     opacity: [0, 1, 0],
-    duration: 1500 + Math.random() * 1000,
+    duration: 1000 + Math.random() * 500,
     easing: "easeInOutSine",
-    complete: () => firefly.remove()
+    complete: () => {
+      firefly.remove();
+      activeFireflies--;
+    }
   });
 }
 
@@ -733,13 +756,14 @@ function createBirthdayConfetti() {
     "#fd79a8",
   ];
 
-  for (let i = 0; i < 50; i++) {
+  // Memory optimized: reduced particle count from 50 to 25
+  for (let i = 0; i < 25; i++) {
     const confetti = document.createElement("div");
     confetti.textContent =
       confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
     confetti.style.cssText = `
             position: absolute;
-            font-size: ${Math.random() * 20 + 15}px;
+            font-size: ${Math.random() * 18 + 12}px;
             color: ${colors[Math.floor(Math.random() * colors.length)]};
             user-select: none;
             pointer-events: none;
@@ -750,19 +774,19 @@ function createBirthdayConfetti() {
     anime({
       targets: confetti,
       translateX: [
-        { value: () => anime.random(-100, 100), duration: 1000 },
-        { value: () => anime.random(-100, 100), duration: 1000 },
+        { value: () => anime.random(-80, 80), duration: 800 },
+        { value: () => anime.random(-80, 80), duration: 800 },
       ],
-      translateY: [0, window.innerHeight + 100],
+      translateY: [0, window.innerHeight + 50],
       rotate: () => anime.random(0, 360),
       scale: [
-        { value: 1.2, duration: 300 },
-        { value: 0.8, duration: 300 },
-        { value: 0, duration: 400 },
+        { value: 1.1, duration: 250 },
+        { value: 0.7, duration: 250 },
+        { value: 0, duration: 300 },
       ],
       opacity: [1, 1, 0],
-      duration: 4000,
-      delay: i * 100,
+      duration: 3000,
+      delay: i * 80,
       easing: "easeOutQuart",
       complete: () => confetti.remove(),
     });
@@ -770,7 +794,7 @@ function createBirthdayConfetti() {
 
   setTimeout(() => {
     confettiContainer.remove();
-  }, 8000);
+  }, 5000);
 }
 
 function createBirthdayPhotoFrame() {
@@ -1373,35 +1397,36 @@ function toggleShuffle() {
 updateShuffleButton("shuffle-disabled.svg", false);
 
 function loopShuffleBurst(centerX, centerY) {
-  const glyphs = ["🦁", "🌲", "❄️", "🕯️", "✨", "🍃", "🌌", "⛅", "🌀", "🦢", "🎶",];
+  const glyphs = ["🦁", "🌲", "❄️", "🕯️", "✨", "🍃", "🌌", "🎶"];
   const burstContainer = document.getElementById("loop-burst");
   burstContainer.innerHTML = "";
   burstContainer.classList.remove("hidden");
   burstContainer.style.top = `${centerY}px`;
   burstContainer.style.left = `${centerX}px`;
 
-  for (let i = 0; i < 10; i++) {
+  // Memory optimized: reduced from 10 to 6 particles
+  for (let i = 0; i < 6; i++) {
     const particle = document.createElement("div");
     particle.className = "loop-particle";
     particle.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
     burstContainer.appendChild(particle);
 
     const angle = Math.random() * 2 * Math.PI;
-    const distance = 40 + Math.random() * 30;
+    const distance = 35 + Math.random() * 25;
 
     anime({
       targets: particle,
       translateX: Math.cos(angle) * distance,
       translateY: Math.sin(angle) * distance,
-      scale: [1.2, 0.4],
+      scale: [1, 0.3],
       opacity: [1, 0],
-      duration: 800 + Math.random() * 400,
+      duration: 600 + Math.random() * 200,
       easing: "easeOutExpo",
       complete: () => particle.remove(),
     });
   }
 
-  setTimeout(() => burstContainer.classList.add("hidden"), 1000);
+  setTimeout(() => burstContainer.classList.add("hidden"), 800);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1803,8 +1828,9 @@ function updateMediaSession(song) {
       burst.classList.remove("hidden");
       label.classList.remove("hidden");
 
-      const glyphs = ["🦁", "❄️", "🌌", "🕯️", "🍃", "🌲", "🦢", "🌠"];
-      const numParticles = 18;
+      const glyphs = ["🦁", "❄️", "🌌", "🕯️", "🍃", "🌲"];
+      // Memory optimized: reduced from 18 to 10 particles
+      const numParticles = 10;
       for (let i = 0; i < numParticles; i++) {
         const particle = document.createElement("div");
         particle.classList.add("burst-particle");
@@ -1813,14 +1839,14 @@ function updateMediaSession(song) {
         burst.appendChild(particle);
 
         const angle = Math.random() * 2 * Math.PI;
-        const radius = 80 + Math.random() * 60;
+        const radius = 60 + Math.random() * 40;
         anime({
           targets: particle,
           translateX: Math.cos(angle) * radius,
           translateY: Math.sin(angle) * radius,
           opacity: [1, 0],
-          scale: () => anime.random(1, 2),
-          duration: 1300 + Math.random() * 500,
+          scale: () => anime.random(1, 1.5),
+          duration: 1000 + Math.random() * 300,
           easing: "easeOutExpo",
           complete: () => particle.remove(),
         });
@@ -1828,8 +1854,8 @@ function updateMediaSession(song) {
       anime({
         targets: "#secret-label",
         opacity: [0, 1, 0],
-        translateY: [-20, 0, -10],
-        duration: 2400,
+        translateY: [-15, 0, -8],
+        duration: 1800,
         easing: "easeInOutQuad",
       });
 
@@ -1845,12 +1871,13 @@ function updateMediaSession(song) {
 
 function magicalBurst(x, y) {
   const particles = [];
-  for (let i = 0; i < 20; i++) {
+  // Memory optimized: reduced from 20 to 10 particles
+  for (let i = 0; i < 10; i++) {
     const particle = document.createElement("div");
     particle.classList.add("magic-particle");
     document.body.appendChild(particle);
 
-    const size = Math.random() * 8 + 8;
+    const size = Math.random() * 6 + 6;
     particle.style.width = `${size}px`;
     particle.style.height = `${size}px`;
     particle.style.left = `${x}px`;
@@ -1861,12 +1888,12 @@ function magicalBurst(x, y) {
 
   anime({
     targets: particles,
-    translateX: () => anime.random(-100, 100),
-    translateY: () => anime.random(-100, 100),
-    scale: () => anime.random(1, 2),
+    translateX: () => anime.random(-80, 80),
+    translateY: () => anime.random(-80, 80),
+    scale: () => anime.random(1, 1.5),
     opacity: [1, 0],
     easing: "easeOutExpo",
-    duration: 1200,
+    duration: 900,
     complete: () => particles.forEach((p) => p.remove()),
   });
 }
